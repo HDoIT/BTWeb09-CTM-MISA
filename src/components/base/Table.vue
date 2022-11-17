@@ -104,8 +104,7 @@ export default {
     computed:{
         selectAll:{
             get: function () {
-                var check = this.listEmployees ? this.listCheckbox.length == this.listEmployees.length : false
-                return check;
+                return this.listEmployees ? this.listCheckbox.length == this.listEmployees.length : false;
             },
             set: function (value) {
                 var listCheckbox = [];
