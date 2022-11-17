@@ -1,0 +1,128 @@
+th,td{
+    border: 1px solid var(--tableColor);
+    padding: 10px;
+    border-top: none;
+    border-left: none;
+}
+
+tr>:first-child{
+    background-color: #fff;
+    border: none;
+    min-width: 24px;
+    position: sticky;
+    left: 0;
+}
+
+
+table{
+    border-collapse: collapse;
+    border: none;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: calc(100% + 360px);
+    /* padding-bottom: ; */
+}
+
+tr{
+    height: 48px;
+}
+
+tr>:nth-child(5){
+    min-width: 100px;
+}
+
+tr>:nth-child(3),
+tr>:nth-child(4),
+tr>:nth-child(7){
+    min-width: 180px;
+}
+
+tr>:nth-child(8),
+tr>:nth-child(9){
+    min-width: 230px;
+}
+
+tr>:nth-child(10),
+tr>:nth-child(11){
+    min-width: 150px;
+}
+
+thead>tr{
+    text-align: left;
+    background-color: var(--thtableColor);
+    text-transform: uppercase;
+    font-size: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+thead>tr>:nth-child(2),thead>tr>:nth-child(13){
+    background-color: var(--thtableColor) !important;
+}
+
+table tr>:nth-child(2){
+    text-align: center;
+    padding: 10px;
+    position: sticky;
+    left: 24px;
+    z-index: 1;
+    background-color: #fff;
+    border-left: none;
+}
+
+table tr>:nth-child(6){
+    text-align: center;
+    min-width: 200px;
+}
+
+table tr>:nth-child(14){
+    background-color: #fff;
+    border: none;
+    position: sticky;
+    right: 30px;
+    min-width: 30px;
+}
+
+table tr>:last-child{
+    background-color: var(--mainColor);
+    border: none;
+    position: sticky;
+    right: 0;
+    min-width: 30px;
+}
+
+table tr>:nth-child(13){
+    min-width: 120px;
+    position: sticky;
+    right: 60px;
+    text-align: center;
+    background-color: #fff;
+    z-index: 1;
+    border-right: none;
+    border-left: 1px solid var(--tableColor);
+}
+
+.table__action{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding-left: 16px;
+}
+
+.table__action a{
+    padding-right: 4px;
+    border-right: 1px solid #fff;
+}
+
+tbody>tr{
+    font-size: 13px;
+    background-color: #ffffff; 
+}
+
+tbody tr:hover,
+tbody tr:hover>:nth-child(2),
+tbody tr:hover>:nth-child(13){
+    background-color: rgb(225, 238, 249);
+}

@@ -1,0 +1,61 @@
+
+.checkbox-rect input[type="checkbox"] {
+    display: none;
+}
+  
+.checkbox-rect input[type="checkbox"] + label {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    transition: all 0.5 ease-in-out;
+}
+
+.checkbox-rect input[type="checkbox"]:checked{
+    /* background: url('../assets/img/Sprites.64af8f61.svg');
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-position: -1294px -562px;
+    width: 1.3em;
+    height: 1.3em; */
+}
+
+.checkbox-rect input[type="checkbox"]:hover + label:before {
+    box-shadow: 0px 0px 0px 5px #2ca01c20;
+}
+
+.checkbox-rect input[type="checkbox"] + label:before {
+    content: "";
+    display: block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #afafaf;
+    border-radius: 0.2em;
+    position: absolute;
+    left: 23%;
+    top: -10px;
+    -webkit-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+    background: #fff;
+}
+  
+.checkbox-rect input[type="checkbox"]:checked + label:before {
+    width: 16px;
+    height: 16px;
+    border-radius: 0.2em;
+    border-color: #2ca01c;
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+    /* box-shadow: 0 0 0 1px #000; */
+    -webkit-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+    background: url('../../assets/img/Sprites.64af8f61.svg');
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-position: -1295px -562px;
+  }

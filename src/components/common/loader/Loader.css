@@ -1,0 +1,15 @@
+.loadingImg{
+    width: 20px;
+    height: 20px;
+}
+
+.loading{
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    z-index: 20000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}

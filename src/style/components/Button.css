@@ -1,0 +1,74 @@
+
+.btn{
+    color: #fff;
+    height: 36px;
+    padding: 0 16px;
+    border: unset;
+    background-color: var(--btnColor);
+    border-radius: 4px;
+    line-height: 36px;
+}
+
+.btn:hover{
+    background-color: var(--btnHoverColor);
+    cursor: pointer;
+}
+
+.btn__white{
+    border: 1px solid #8d9096;
+    color: #111;
+    background-color: transparent;
+}
+
+.btn__white:hover{
+    background-color: #8d9096;
+}
+
+.btn__paging{
+    border: none;
+}
+
+.btn__paging.active{
+    border:1px solid #e0e0e0 !important;
+}
+
+.btn__paging--prev{
+    border: none;
+    background-color: transparent;
+    padding: 0 1rem;
+    cursor: pointer;
+}
+
+.btn__paging{
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    height: 20px;
+    background: none;
+    cursor: pointer;
+}
+
+.paging__number{
+    display: flex;
+    align-items: center;
+}
+
+button[disabled]{
+  border: none;
+  background-color: transparent;
+  color: #9e9e9e;
+  cursor: auto;
+}
+
+.btn-delete{
+    width: 183px;
+    height:36px;
+    border: 2px solid #3b3c3f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    font-weight: 700;
+    margin-top: 16px;
+    margin-left: 16px;
+    cursor: pointer;
+}

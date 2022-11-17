@@ -1,0 +1,107 @@
+.header__logo{
+    background-color: var(--sidebarColor);
+    width: 200px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.header__logo.active{
+    width: 73px;
+}
+
+.header__logo.active .logo,
+.header__logo.active .mi-menu-icon{
+    display: none;
+}
+
+.header__logo.active .mi-navbar-icon-white{
+    display: block;
+}
+
+.header__logo.active + .header__content .mi-navbar-icon-black{
+    display: none;
+}
+
+.header__logo.active + .header__content{
+    width: calc(100% - 73px);
+}
+
+
+.menu__header:hover{
+    display: flex;
+    align-items: center;
+    background-color: #000;
+    height: 56px;
+    padding-left: 12px;
+}
+
+.menu__header:hover .mi-bell{
+    background-position: -257px -88px;
+	width: 22px;
+	height: 25px;
+}
+
+.menu__header:hover::after{
+    content: "";
+    width: 0;
+    height: 0;
+    border-bottom: 8px solid transparent;
+    border-left: 22px solid transparent;
+    border-right: 22px solid transparent;
+    border-top: 8px solid #000;
+    position: absolute;
+    top: 56px;
+    left: 1px;
+    z-index: 100;
+}
+/* 
+.logo{
+    width: 10px;
+    height: 10px;
+}
+*/
+
+.logo img{
+    height: 36px;
+}
+
+/* .logo{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+} */
+
+.mi-logo{
+    background: url('../../assets/img/Logo_Module_TiengViet_White.66947422.svg');
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-position: -32px -24px;
+	width: 1762px;
+	height: 560px;
+}
+
+.header__content{
+    width: calc(100% - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+}
+
+.header__content--left{
+    display: flex;
+    align-items: center;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.header__content--right{
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-weight: 600;
+}
