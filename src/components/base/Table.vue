@@ -27,12 +27,12 @@
         </thead>
         
         <tbody>
-            <tr v-for="(e,index) of listEmployees" :key="index">
+            <tr v-for="(e,index) of listEmployees" :key="index" :class="{rowTable : checkedBg[index]}">
                 <td></td>
                 <td>
                     <div class="checkbox-rect">
-                        <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeId" :id="e.EmployeeCode" v-model="listCheckbox" @change="checkboxChange">
-                        <label :for="e.EmployeeCode"></label>
+                        <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeId" :id="e.EmployeeCode" v-model="listCheckbox" >
+                        <label :for="e.EmployeeCode" @click="changeBackgroundTd(index)"></label>
                     </div>
                 </td>
                 <td>{{e.EmployeeCode ||""}}</td>
@@ -79,6 +79,7 @@ export default {
         pageSize: Number,
         totalRc: Number,
         pageNumber: Number,
+        isCheck: Boolean
     },
     emits:[
         "handelClickDeleteEmployee",
@@ -87,6 +88,7 @@ export default {
         "topContext",
         "leftContext",
         "employeeId",
+        "showMultipleDelete"
     ],
     data() {
         return {
@@ -97,8 +99,10 @@ export default {
             showContextMenu2: [],
             topAc: 0,
             leftAc:0,
-            checkedBg: false,
-            listCheckbox:[]
+            checkedBg: [],
+            listCheckbox:[],
+            isShowMultiple: true
+            // listCheckboxSelected:{}
         }
     },
     computed:{
@@ -112,30 +116,61 @@ export default {
                     this.listEmployees.forEach(function (user) {
                         listCheckbox.push(user.EmployeeId);
                     });
+                    for(let i = 0;i<this.pageSize;i++){
+                        this.checkedBg[i] = false;
+                    }
                 }
                 this.listCheckbox= listCheckbox;
+                if(this.listCheckbox.length>2){
+                    this.isShowMultiple = true;
+                }
+                else{
+                    this.isShowMultiple = false;
+                }
+                this.$emit("showMultipleDelete",this.isShowMultiple);
+                
+                for(let i = 0;i<this.pageSize;i++){
+                    this.checkedBg[i] = !this.checkedBg[i];
+                }
+                
             },
         }
     },
     methods: {
-        checkboxChange(e) {
-            console.log(this.listEmployees,e);
+
+        changeBackgroundTd(i){
+            console.log(this.listCheckbox.length);
+            this.checkedBg[i] = !this.checkedBg[i];
+            let count = 2;
+            console.log(this.listCheckbox);
+            if(count>2){
+                this.isShowMultiple = true;
+            }
+            else{
+                this.isShowMultiple = false;
+            }
+            this.$emit("showMultipleDelete",this.isShowMultiple)
         },
+
         onClickEditEmployee(employeeID) {
             console.log("employeeID:", employeeID);
             this.$emit("onClickEditEmployee", employeeID);
         },
 
+        //Hiển thị context menu
         handelClickOpenContextMenu(){
             this.showContextMenu = true;
             this.$emit("showContextMenu", this.showContextMenu);
         },
 
+        //Lấy vị trí contextmenu của từng row trong table
         getPositionContext(e,empId,idx){
             console.log();
             this.showContextMenu = !this.showContextMenu;
             this.$emit("employeeId", empId);
             this.$emit("showContextMenu", this.showContextMenu);
+
+            //Xử lý hiển thị 2 contextmenu cuối cùng trong một page
             if(this.totalRc%this.pageSize!=0 && this.pageNumber == Math.floor(this.totalRc/this.pageSize)+1){
                 if (idx === (this.totalRc%this.pageSize)-1 || idx === (this.totalRc%this.pageSize)-2) {
                     this.leftAc = e.target.getBoundingClientRect().x -70
@@ -174,6 +209,7 @@ export default {
 
     },
     updated() {
+        // console.log(this.pageNumber);
     },
     // lấy dữ liệu khi component được tạo thành công
     created() {

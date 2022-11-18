@@ -17,7 +17,7 @@
             </div>
             <div class="container__main--top">
                 <div class="button-left">
-                    <div class="delete" v-show="isMultipleDelete2">
+                    <div class="delete" v-show="isMultipleDelete">
                         <div class="btn-delete">Thực hiện xóa hàng loạt</div>
                     </div>
                 </div>
@@ -45,6 +45,8 @@
                     :totalRc="count"
                     :pageNumber="pageNumber"
                     :listCheckbox="listCheckbox"
+                    :isCheck="isCheck"
+                    @showMultipleDelete="(c)=>isMultipleDelete = c"
                 ></table-employee>
                 <!-- <div class="margin__right"> -->
                     
@@ -148,9 +150,7 @@ export default {
             left: 0,
             show: false,
             idDelete: '',
-            isMultipleDelete: [],
-            isMultipleDelete1: false,
-            isMultipleDelete2: false,
+            isMultipleDelete: false,
             formatDate,
             employeeDetail: {
                 employeeID: "",
@@ -299,17 +299,15 @@ export default {
             for(let i = 1; i<=this.totalPage; i++){
                 this.isSelectPage[i] = false
             }
-            this.listCheckbox =[]
             this.isSelectPage[pageNumber] = true
             this.loadDataWithPaging(this.keyWord,pageSize,pageNumber);
-            console.log(this.isCheck);
         },
 
         nextPage(pageSize,pageNumber){
             pageNumber = this.pageNumber + 1;
             this.selectPage(pageSize,pageNumber);
             this.loadDataWithPaging(this.keyWord,pageSize,pageNumber);
-            
+            this.isCheck =false
         },
         
         prevPage(pageSize,pageNumber){
