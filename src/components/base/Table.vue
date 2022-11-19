@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-mutating-props -->
 <template>
     <table>
         <thead>
@@ -106,6 +105,7 @@ export default {
         }
     },
     computed:{
+
         selectAll:{
             get: function () {
                 return this.listEmployees ? this.listCheckbox.length == this.listEmployees.length : false;
@@ -152,18 +152,31 @@ export default {
             this.$emit("showMultipleDelete",this.isShowMultiple)
         },
 
+        /**
+         * Lấy ID của nhân viên cần sửa
+         * @param employeeID ID của nhân viên
+         * Author: LHDO(19/11/2022)
+         */
         onClickEditEmployee(employeeID) {
             console.log("employeeID:", employeeID);
             this.$emit("onClickEditEmployee", employeeID);
         },
 
-        //Hiển thị context menu
+        /**
+         * Hiển thị context menu
+         * Author: LHDO(19/11/2022)
+         */
         handelClickOpenContextMenu(){
             this.showContextMenu = true;
             this.$emit("showContextMenu", this.showContextMenu);
         },
 
-        //Lấy vị trí contextmenu của từng row trong table
+        /**
+         * Lấy vị trí contextmenu của từng row trong table
+         * @param {String} empId Id của nhân viên 
+         * @param {Number} idx  Index rows
+         * Author: LHDO(19/11/2022)
+         */
         getPositionContext(e,empId,idx){
             console.log();
             this.showContextMenu = !this.showContextMenu;
@@ -211,6 +224,7 @@ export default {
     updated() {
         // console.log(this.pageNumber);
     },
+    
     // lấy dữ liệu khi component được tạo thành công
     created() {
         // this.getPositionContext()

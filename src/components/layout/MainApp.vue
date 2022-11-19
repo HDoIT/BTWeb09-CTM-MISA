@@ -84,14 +84,14 @@
         </div>
     </div>
         <dialog-employee
-                v-if="employeeDetail.isShowFormEmployeeDetail"
+                v-if="employeeEdit.isShowFormEmployeeEdit"
                 :loadData="loadDataWithPaging"
                 :pageSize="pageSize"
                 :pageNumber="pageNumber"
                 :employeeFilter="keyWord"
                 :selectComboboxActive="selectComboboxActive"
-                :typeForm="employeeDetail.typeSubmit"
-                :employeeId="employeeDetail.employeeID"
+                :typeForm="employeeEdit.typeSubmit"
+                :employeeId="employeeEdit.employeeID"
                 :handelClickCloseDialog="closeForm"
                 :handelClickOpenDialog="openForm"
             >
@@ -111,14 +111,12 @@ import TableEmployee from '../base/Table.vue';
 import DialogEmployee from '../base/DialogEmployee.vue';
 import {listNumberOfPage} from '../../i18ncomponent/i18n'
 import EmployeeAction from '../../action/EmployeeAction.js';
-// import DialogEmployeeUpdate from '../../components/base/DialogEmployeeUpdate.vue';
 import formatDate from '../../untils/formatDate';
 // import TheLoader from '../common/loader/Loader.vue'
 export default {
     components:{
         TableEmployee,
         DialogEmployee,
-        // DialogEmployeeUpdate
         // TheLoader
     },
     props:{
@@ -152,10 +150,10 @@ export default {
             idDelete: '',
             isMultipleDelete: false,
             formatDate,
-            employeeDetail: {
+            employeeEdit: {
                 employeeID: "",
                 typeSubmit: "",
-                isShowFormEmployeeDetail: false,
+                isShowFormEmployeeEdit: false,
             },
             keyWord:"",
             emplNull: false,
@@ -173,46 +171,74 @@ export default {
         
     },  
     methods:{
+
+        /**
+         * Đóng form thông tin nhân viên
+         * Author: LHDO(19/11/2022)
+         */
         closeForm(){
-            this.employeeDetail.isShowFormEmployeeDetail = false
+            this.employeeEdit.isShowFormEmployeeEdit = false
         },
 
+        /**
+         * Mở form thông tin nhân viên
+         * Author: LHDO(19/11/2022)
+         */
         openForm(){
-            this.employeeDetail.isShowFormEmployeeDetail = true
+            this.employeeEdit.isShowFormEmployeeEdit = true
         },
 
-        close(){
-            this.show = false;
-            this.left = 0,
-            this.top = 0
-        },
 
-        openContextMenu(id){
-            console.log(id);
-            this.show = true;
-            this.idDelete = id;
-        },
+        // close(){
+        //     this.show = false;
+        //     this.left = 0,
+        //     this.top = 0
+        // },
 
-        closePagination(){
-            this.isActiveCombobox = false;
-        },
+        // openContextMenu(id){
+        //     console.log(id);
+        //     this.show = true;
+        //     this.idDelete = id;
+        // },
 
+        // closePagination(){
+        //     this.isActiveCombobox = false;
+        // },
+
+        /**
+         * Click hiển thị thông tin nhân viên
+         * @param {int} pageSize Số bản ghi hiện tại
+         * @param {int} pageNumber Số trang hiện tại
+         * Author: LHDO(19/11/2022)
+         */
         handelClickOpenDialog(pageSize,pageNumber){
-            this.employeeDetail.isShowFormEmployeeDetail = true;
+            this.employeeEdit.isShowFormEmployeeEdit = true;
             this.pageSize = pageSize;
             this.pageNumber = pageNumber;
-            this.employeeDetail.typeSubmit = "ADD";
-            this.employeeDetail.employeeID = "";
+            this.employeeEdit.typeSubmit = "ADD";
+            this.employeeEdit.employeeID = "";
         },
 
-        handelClickUpdate(){
-            this.isActiveDialogUpdate = true;
-        },
 
+        // handelClickUpdate(){
+        //     this.isActiveDialogUpdate = true;
+        // },
+
+        /**
+         * Ẩn hiện combobox
+         * Author: LHDO(19/11/2022)
+         */
         handelClickToggleCombobox(){
             this.isActiveCombobox = !this.isActiveCombobox;
         },
 
+        /**
+         * Chọn kịch thước trang
+         * @param {string} keyword từ khóa tìm kiếm
+         * @param {int} value kích thước trang
+         * @param {int} idx Index của combobox
+         * Author: LHDO(19/11/2022)
+         */
         handelClickSelectPageSize(keyword,value,idx){
             this.pageSize = value;
             this.loadDataWithPaging(this.keyWord,this.pageSize,this.pageNumber);
@@ -222,6 +248,10 @@ export default {
             this.loadDataWithPaging(keyword,this.pageSize,1)
         },
 
+        /**
+         * Chọn value combobox
+         * Author: LHDO(19/11/2022)
+         */
         selectComboboxActive(idx){
             for(let i = 0; i<this.listNumberOfPage.length; i++){
                 this.isSelectNumberOfPage[i] = false
@@ -229,12 +259,20 @@ export default {
             this.isSelectNumberOfPage[idx] = true;
         },
 
+        /**
+         * Lấy giá trị nhập vào trong input tìm kiếm
+         * Author: LHDO(19/11/2022)
+         */
         hanldeChangeInput(e) {
             this.keyWord = e.target.value
             this.loadDataWithPaging(this.keyWord,this.pageSize,1)
             console.log(this.keyWord);
         },
 
+        /**
+         * Load lại dữ liệu
+         * Author: LHDO(19/11/2022)
+         */
         clickReload() {
             this.pageSize = 10;
             this.pageNumber = 1;
@@ -242,16 +280,24 @@ export default {
             this.loadDataWithPaging(this.keyWord,this.pageSize, this.pageNumber);
         },
 
-        handelClickUpdateEmployee(id,pageSize,pageNumber){
-            // this.isActiveDialogUpdate = true;
-            this.isActiveDialog = true;
-            this.idEmployee = id;
-            console.log(id,this.idEmployee);
-            this.pageSize = pageSize;
-            this.pageNumber = pageNumber;
-            this.typeForm = "EDIT";
-        },
+        /**
+         * Lấy giá trị nhập vào trong input tìm kiếm
+         * Author: LHDO(19/11/2022)
+        //  */
+        // handelClickUpdateEmployee(id,pageSize,pageNumber){
+        //     // this.isActiveDialogUpdate = true;
+        //     this.isActiveDialog = true;
+        //     this.idEmployee = id;
+        //     console.log(id,this.idEmployee);
+        //     this.pageSize = pageSize;
+        //     this.pageNumber = pageNumber;
+        //     this.typeForm = "EDIT";
+        // },
 
+        /**
+         * Xóa bản ghi
+         * Author: LHDO(19/11/2022)
+        */
         handelClickDeleteEmployee(id,pageSize,pageNumber){
             EmployeeAction.deleteEmployee(id).then(
                 res=>{
@@ -262,6 +308,10 @@ export default {
             )
         },
 
+        /**
+         * Load dữ liệu có phân trang, tìm kiếm
+         * Author: LHDO(19/11/2022)
+        */
         loadDataWithPaging(keyWord,pageSize,pageNumber){
             console.log("a",keyWord);
             EmployeeAction.getAllPaging(keyWord,pageSize,pageNumber)
@@ -295,6 +345,10 @@ export default {
                 })
         },
 
+        /**
+         * Chọn trang
+         * Author: LHDO(19/11/2022)
+        */
         selectPage(pageSize,pageNumber){
             for(let i = 1; i<=this.totalPage; i++){
                 this.isSelectPage[i] = false
@@ -303,6 +357,10 @@ export default {
             this.loadDataWithPaging(this.keyWord,pageSize,pageNumber);
         },
 
+        /**
+         * Chuyển tiếp trang
+         * Author: LHDO(19/11/2022)
+        */
         nextPage(pageSize,pageNumber){
             pageNumber = this.pageNumber + 1;
             this.selectPage(pageSize,pageNumber);
@@ -310,19 +368,27 @@ export default {
             this.isCheck =false
         },
         
+        /**
+         * Quay lại trang
+         * Author: LHDO(19/11/2022)
+        */
         prevPage(pageSize,pageNumber){
             pageNumber = this.pageNumber - 1;
             this.selectPage(pageSize,pageNumber);
             this.loadDataWithPaging(this.keyWord,pageSize,pageNumber);
         },
 
+        /**
+         * Sửa thông tin nhân viên
+         * Author: LHDO(19/11/2022)
+        */
         onClickEditEmployee(employeeID) {
             console.log("employeeID main:", employeeID);
-            const { employeeDetail } = this;
-            employeeDetail.employeeID = employeeID;
-            employeeDetail.typeSubmit = "EDIT";
-            employeeDetail.isShowFormEmployeeDetail = true;
-            console.log(employeeDetail.typeSubmit);
+            const { employeeEdit } = this;
+            employeeEdit.employeeID = employeeID;
+            employeeEdit.typeSubmit = "EDIT";
+            employeeEdit.isShowFormEmployeeEdit = true;
+            console.log(employeeEdit.typeSubmit);
         },
     },
     created() {

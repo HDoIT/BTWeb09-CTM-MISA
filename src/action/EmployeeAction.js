@@ -26,14 +26,6 @@ class EmployeeAction{
         return axios.get(`https://amis.manhnv.net/api/v1/Employees/${id}`)
     }
 
-    getDepartment(){
-        return axios.get(`https://amis.manhnv.net/api/v1/Departments`)
-    }
-
-    getDepartmentById(id){
-        return axios.get(`https://amis.manhnv.net/api/v1/Departments/${id}`)
-    }
-
 }
 
 export default new EmployeeAction();

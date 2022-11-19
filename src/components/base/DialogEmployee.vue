@@ -141,6 +141,7 @@
 
 <script>
 import EmployeeAction from '../../action/EmployeeAction.js';
+import DepartmentAction from '../../action/DepartmentAction.js';
 import AlertWarning from '../base/alert/AlertWarning.vue';
 import moment from 'moment';
 import formatDate from '../../untils/formatDate';
@@ -210,6 +211,10 @@ export default {
     },
     methods: {
 
+        /**
+         * Validate input Mã nhân viên
+         * Author: LHDO(19/11/2022)
+         */
         enterEmployeeCode(e){
             this.dataEmp.employeeCode = e.target.value
             if(this.dataEmp.employeeCode == ''){
@@ -218,6 +223,11 @@ export default {
             }
             this.validate.isEmployeeCode = false
         },
+
+        /**
+         * Validate input Tên nhân viên
+         * Author: LHDO(19/11/2022)
+         */
         enterEmployeeName(e){
             this.dataEmp.employeeName =e.target.value
 
@@ -227,6 +237,11 @@ export default {
             }
             this.validate.isEmployeeName = false
         },
+
+        /**
+         * Validate Combobox Đơn vị
+         * Author: LHDO(19/11/2022)
+         */
         enterDepartmentName(e){
             this.dataEmp.departmentName = e.target.value
             
@@ -236,7 +251,11 @@ export default {
             }
             this.validate.isDepartmentName = false
         },
-        //Xử lý sự kiện cất và thêm
+
+        /**
+         * Xử lý sự kiện cất và thêm
+         * Author: LHDO(19/11/2022)
+         */
         handelClickSaveAndAdd(e){
             setTimeout(() => {
                 this.addEmp(e);
@@ -245,12 +264,19 @@ export default {
                 this.handelClickOpenDialog();
             }, 3000);
         },
-        //Xử lý sự kiện hiển thị combobox đơn vị
+
+        /**
+         * Hiển thị combobox đơn vị
+         * Author: LHDO(19/11/2022)
+         */
         handelClickToggleCombobox(){
             this.isActiveCombobox = !this.isActiveCombobox;
         },
 
-        //Xử lý sự kiện chọn combobox đơn vị
+        /**
+         * Xử lý chọn tên đơn vị
+         * Author: LHDO(19/11/2022)
+         */
         handelClickSelectDepartment(value,idx,idDp){
             this.dataEmp.departmentName = value;
             this.isActiveCombobox = false;
@@ -258,6 +284,10 @@ export default {
             this.dataEmp.departmentId = idDp;
         },
 
+        /**
+         * Xử lý active khi click vào một đơn vị trong combobox
+         * Author: LHDO(19/11/2022)
+         */
         selectComboboxActive(idx){
             for(let i = 0; i<this.listDepartment.length; i++){
                     this.isSelectNumberOfPage[i] = false
@@ -265,12 +295,20 @@ export default {
             this.isSelectNumberOfPage[idx] = true;
         },
 
+        /**
+         * Hiển thị cảnh báo
+         * @param {string} text Nội dung cảnh báo
+         * Author: LHDO(19/11/2022)
+         */
         showAlertWarning(text){
             this.isShowAlert = true;
             this.textErr = text;
         },
 
-        //Xử lý sự kiện cất
+        /**
+         * Xử lý submit form
+         * Author: LHDO(19/11/2022)
+         */
         addEmp(e){
             e.preventDefault();
 
@@ -314,12 +352,14 @@ export default {
             }
         },
 
-        //Định dạng ngày tháng để hiển thị lên form
+        /**
+         * Định dạng ngày tháng để hiển thị lên form
+         * Author: LHDO(19/11/2022)
+         */
         convertDate(string){
             return string ? moment(string).format('YYYY-MM-DD') : "";
         }
     },
-    // methods:{
 
     //     
     //     addEmp(e){
@@ -511,11 +551,12 @@ export default {
     },
 
     created() {
+
         //select active combobox mặc định
         this.isSelectNumberOfPage[0] = true;
         
         //Lấy danh sách bản ghi phòng ban
-        EmployeeAction.getDepartment()
+        DepartmentAction.getDepartment()
             .then(res=>{  
                 this.listDepartment = [...res.data]
                 console.log(res.data);
@@ -530,7 +571,7 @@ export default {
             EmployeeAction.getDataUpdate(this.employeeId)
             .then(
                 res=>{
-                    EmployeeAction.getDepartmentById(res.data.DepartmentId).then(res=>{
+                    DepartmentAction.getDepartmentById(res.data.DepartmentId).then(res=>{
                         console.log(res);
                         this.dataEmp.departmentName = res.data.DepartmentName
                         this.dataEmp.departmentId = res.data.DepartmentId
