@@ -138,7 +138,7 @@
                     :isAlertWarning="isAlertWarning"
                     :isQuestion="isQuestion"
                     :closeForm="handelClickCloseDialog"
-                    :saveUpdate="updateForm"
+                    :saveUpdate="typeForm=='EDIT' ? updateForm : saveForm"
                     >
                     {{textErr}}
                 </alert-warning>
@@ -178,9 +178,10 @@ export default {
         },
         
     },
-    emits:["isActiveShow","focusForm"],
+    emits:["isActiveShow","focusForm","isLoading"],
         data() {
         return {
+            isLoading: false,
             isAlertNull: false,
             isAlertWarning: false,
             isQuestion: false,
@@ -414,14 +415,14 @@ export default {
                 if(!Number.isInteger(Number(manv.split('').at(-1)))){
                     this.showAlertWarning("Mã nhân viên phải kết thúc bằng số",false)
                 }
-                if(format.test(manv)){
+                else if(format.test(manv)){
                     this.showAlertWarning("Mã nhân viên không được chứa ký tự đặc biệt!",false)
                 }
-                if(manv.length>10){
+                else if(manv.length>10){
                     
                     this.showAlertWarning("Mã nhân viên không lớn hơn 10 ký tự",false)
                 }
-                if(this.isValidateDate()){
+                else if(this.isValidateDate()){
                     EmployeeAction.createEmployee({...this.dataEmp})
                         .then(()=>{
                             this.handelClickCloseDialog();
@@ -438,7 +439,7 @@ export default {
                                 this.showAlertWarning(e.response.data.UserMsg,false);
                             }
                         }
-                    );
+                    )
                 }
                 else{
                     this.showAlertWarning("Ngày sinh không được lớn hơn ngày hiện tại",false)
@@ -528,14 +529,13 @@ export default {
                 if(!Number.isInteger(Number(manv.split('').at(-1)))){
                     this.showAlertWarning("Mã nhân viên phải kết thúc bằng số",false)
                 }
-                if(format.test(manv)){
+                else if(format.test(manv)){
                     this.showAlertWarning("Mã nhân viên không được chứa ký tự đặc biệt!",false)
                 }
-                if(manv.length>10){
+                else if(manv.length>10){
                     this.showAlertWarning("Mã nhân viên không lớn hơn 10 ký tự",false)
-                }
-                if(this.isValidateDate()){
-                        EmployeeAction.updateEmployee(this.employeeId,{...this.dataEmp})
+                }else{
+                    EmployeeAction.updateEmployee(this.employeeId,{...this.dataEmp})
                             .then(()=>{
                                         this.handelClickCloseDialog();
                                         this.loadData(this.employeeFilter,this.pageSize,this.pageNumber);
@@ -549,11 +549,7 @@ export default {
                                     this.validate.isEmployeeCode = true
                                     this.showAlertWarning(e.response.data.UserMsg,false);
                                 }
-                            }
-                        );
-                }
-                else{
-                    this.showAlertWarning("Ngày sinh không được lớn hơn ngày hiện tại",false)
+                            })
                 }
                 
             }

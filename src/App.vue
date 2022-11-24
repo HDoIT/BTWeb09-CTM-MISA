@@ -1,7 +1,10 @@
 <template>
   <the-header @isActiveBtnHeader="(msg)=> isActiveSidebar = msg"></the-header>
   <side-bar :isActiveSidebar="isActiveSidebar"></side-bar>
-  <the-main></the-main>
+  <the-main @is-loading="c=> isLoading = c"></the-main>
+  <div class="wrapper-loadding" v-if="isLoading">
+    <div class="icon-loading"></div>
+  </div>
   <!-- <dialog-employee></dialog-employee> -->
 </template>
 
@@ -21,7 +24,8 @@ export default {
   },
   data() {
     return{
-      isActiveSidebar: false
+      isActiveSidebar: false,
+      isLoading: false
     }
   },
 
@@ -58,6 +62,39 @@ export default {
     padding: 0;
     box-sizing: border-box;
     max-height: 100vh;
+}
+
+.wrapper-loadding {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9999;
+  background:rgba(0,0,0,.1);
+  /* background: transparent; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper-loadding .icon-loading {
+  background: url(./assets/loading.svg) no-repeat center;
+  height: 40px;
+  width: 40px;
+  animation: loading linear 0.8s infinite;
+}
+
+@keyframes loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 #app{

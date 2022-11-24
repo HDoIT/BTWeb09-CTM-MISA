@@ -29,21 +29,22 @@
             <tr v-for="(e,index) of listEmployees" :key="index" :class="{rowTable : checkedBg[index]}">
                 <td></td>
                 <td>
-                    <div class="checkbox-rect">
+                    <div class="loading" v-if="isLoadingTr"></div>
+                    <div class="checkbox-rect" v-if="!isLoadingTr">
                         <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeId" :id="e.EmployeeCode" v-model="listCheckbox" >
                         <label :for="e.EmployeeCode" @click="changeBackgroundTd(index)"></label>
                     </div>
                 </td>
-                <td>{{e.EmployeeCode ||""}}</td>
-                <td>{{e.EmployeeName ||""}}</td>
-                <td>{{e.GenderName||""}}</td>
-                <td>{{formatDate(e.DateOfBirth)}}</td>
-                <td title="Số chứng minh nhân dân">{{e.IdentityNumber||""}}</td>
-                <td>{{e.JobPositionName||""}}</td>
-                <td>{{e.DepartmentName||""}}</td>
-                <td>{{e.BankAccountNumber||""}}</td>
-                <td>{{e.BankName||""}}</td>
-                <td>{{e.BankBranchName||""}}
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.EmployeeCode ||"" :"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.EmployeeName ||"":"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.GenderName||"":"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? formatDate(e.DateOfBirth):"" }}</td>
+                <td title="Số chứng minh nhân dân"><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.IdentityNumber||"":"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.JobPositionName||"":"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.DepartmentName||"":"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.BankAccountNumber||"":"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.BankName||"":"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.BankBranchName||"":"" }}
                 </td>
                 <td>
                     <span class="table__action">
@@ -72,7 +73,8 @@ export default {
         pageSize: Number,
         totalRc: Number,
         pageNumber: Number,
-        isCheck: Boolean
+        isCheck: Boolean,
+        isLoadingTr: Boolean
     },
     emits:[
         "handelClickDeleteEmployee",
@@ -243,5 +245,22 @@ export default {
 @import url('../../style/components/Checkbox.css');
 .bgcolor td {
   background-color: rgb(225, 238, 249);
+}
+
+td .loading{
+    width: 100%;
+    height: 12px;
+    background: linear-gradient(to right, #eee 20%, #ddd 50%, #eee 80%);
+    background-size: 500px 100px;
+    animation-name: moving-gradient;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes moving-gradient {
+    0% { background-position: -250px 0; }
+    100% { background-position: 250px 0; }
 }
 </style>

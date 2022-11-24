@@ -49,6 +49,7 @@
                     :listCheckbox="listCheckbox"
                     :isCheck="isCheck"
                     :listDepartment="listDepartment"
+                    :isLoadingTr="isLoadingTr"
                 >
                 </the-table>
                 <!-- <div class="margin__right"> -->
@@ -79,8 +80,8 @@
 
                         <button class="btn__paging--prev" :class="{'active' : (pageNumber != 1)}" @click="prevPage(pageSize,pageNumber)" :disabled="isPrevPage">Trước</button>
 
-                        <button class="btn__paging" @click="selectPage(pageSize,1)" v-if="pageNumber > 2"> {{pages[0]}}</button>
-                        <li class="page__dots" v-if="pageNumber > 2">...</li>
+                        <button class="btn__paging" @click="selectPage(pageSize,1)" v-if="pageNumber > 3"> {{pages[0]}}</button>
+                        <li class="page__dots" v-if="pageNumber > 3">...</li>
 
                         <button class="btn__paging" v-for="currentPage of displayedPages" :key="currentPage" @click="selectPage(pageSize,currentPage)" :class="{'active' : (pageNumber === (currentPage))}">{{currentPage}}</button>
 
@@ -110,7 +111,7 @@
         :handelClickOpenDialog="openForm"
     >
     </the-dialog-form>
-    <div class="alert__warning" v-show="isShowAlertConfirm">
+    <div class="alert__warning" v-if="isShowAlertConfirm">
             <div class="alert">
             <div class="alert__form--title">
                 <div class="mi mi-warning"></div>
@@ -120,7 +121,7 @@
             </div>
             <hr>
             <div class="alert__form--bottom">
-                <div class="btn btn__close--warning btn__white" ref="autofocusNo" @click="handelCancelDelete()">Không</div>
+                <div class="btn btn__close--warning btn__white" @click="handelCancelDelete()">Không</div>
                 <div class="btn btn__close--warning" @click="handelConfirmDelete(idDelete,pageSize,pageNumber)">Có</div>
             </div>
         </div>
@@ -142,12 +143,17 @@ export default {
         TheDialogForm,
         // TheLoader
     },
+    emits:[
+        "isLoading"
+    ],
     props:{
         
     },
     // formatDate:[formatDate],
     data() {
         return {
+            isLoadingTr: false,
+            isLoading: false,
             employeeCode:'',
             isShowAlertConfirm: false,
             isCheck: false,
@@ -196,28 +202,34 @@ export default {
                 left: this.left + 'px',
             }
         },
-
+        
         displayedPages() {
             
-            if (this.pageNumber === 1) {
+            if(this.pages.length>5){
+                if (this.pageNumber === 1) {
                 return this.pages.slice(this.pageNumber - 1, this.pageNumber + 2);
+                }
+                else if (this.pageNumber === this.pages.length) {
+                    return this.pages.slice(this.pageNumber - 5, this.pageNumber + 1);
+                }
+                else if (this.pageNumber >= 4 && this.pageNumber <= this.pages.length-3) {
+                    return this.pages.slice(this.pageNumber - 2, this.pageNumber + 1);
+                }
+                else if (this.pageNumber > this.pages.length-3) {
+                    return this.pages.slice(this.pageNumber - 4, this.pageNumber + 1);
+                }
+                else {
+                    return this.pages.slice(this.pageNumber - 2, this.pageNumber + 3);
+                }
             }
-            else if (this.pageNumber === this.pages.length) {
-                return this.pages.slice(this.pageNumber - 5, this.pageNumber + 1);
-            }
-            else if (this.pageNumber >= 2 && this.pageNumber <= this.pages.length-3) {
-                return this.pages.slice(this.pageNumber - 2, this.pageNumber + 1);
-            }
-            else if (this.pageNumber > this.pages.length-3) {
-                return this.pages.slice(this.pageNumber - 4, this.pageNumber + 1);
-            }
-            else {
-                return this.pages.slice(this.pageNumber - 2, this.pageNumber + 3);
+            else{
+                return this.pages;
             }
         },
         
     },
     methods:{
+        
         /**
          * Đóng form thông tin nhân viên
          * Author: LHDO(19/11/2022)
@@ -276,7 +288,7 @@ export default {
             this.isActiveCombobox = false
             this.isSelectPage[1] = true
             this.backToArray=[];
-            this.loadDataWithPaging(keyword,this.pageSize,1)
+            this.loadDataAgain(keyword,this.pageSize,1) 
         },
 
         /**
@@ -303,9 +315,8 @@ export default {
 
         handelSearch(){
             console.log(this.keyWord);
-            
             this.backToArray=[];
-            this.loadDataWithPaging(this.keyWord,this.pageSize,1)
+            this.loadDataAgain(this.keyWord,this.pageSize,1) 
         },
 
         /**
@@ -316,7 +327,8 @@ export default {
             this.pageSize = 10;
             this.pageNumber = 1;
             this.keyWord = "";
-            this.loadDataWithPaging(this.keyWord,this.pageSize, this.pageNumber);
+            this.posts=[];
+            this.loadDataAgain(this.keyWord,this.pageSize,this.pageNumber) 
         },
 
         /**
@@ -344,11 +356,17 @@ export default {
         },
 
         handelConfirmDelete(id,pageSize,pageNumber){
+            // this.isLoading = true;
+            // this.$emit("isLoading", this.isLoading);
+            this.employeeEdit.typeSubmit = "DELETE"
             this.isShowAlertConfirm = false;
             if(this.isConfirm){
                 EmployeeAction.deleteEmployee(id).then(
                         ()=>{
                         this.loadDataWithPaging(this.keyWord,pageSize,pageNumber)
+                        if(this.posts.length ==1){
+                            // alert(2);
+                        }
                     }
                 )
             }
@@ -393,6 +411,13 @@ export default {
          * Author: LHDO(19/11/2022)
         */
         loadDataWithPaging(keyWord,pageSize,pageNumber){
+            if(this.employeeEdit.typeSubmit == "EDIT" || this.employeeEdit.typeSubmit == "DELETE" || this.employeeEdit.typeSubmit == "ADD"){
+                this.isLoading = true;
+                this.$emit("isLoading", this.isLoading);
+            }
+            else{
+                this.isLoadingTr = true;
+            }
             EmployeeAction.getAllPaging(keyWord,pageSize,pageNumber)
             .then(response =>{
                     this.posts = [... response.data.Data];
@@ -406,13 +431,13 @@ export default {
                     this.$emit('countEmp', this.count)
                     this.pageSize = pageSize
                     this.pageNumber = pageNumber
-                    if (pageNumber === this.totalPage) {
+                    if (pageNumber >= this.totalPage) {
                         this.isNextPage = true;
                     }
                     else{
                         this.isNextPage = false;
                     }
-                    if (pageNumber === 1) {
+                    if (pageNumber <= 1) {
                         this.isPrevPage = true;
                     }
                     else{
@@ -421,13 +446,34 @@ export default {
                     this.emplNull= false,
                     this.bottomNull= true
                     // this.setPages();
+                    if(this.totalPage == 0){
+                        this.emplNull=true
+                        this.bottomNull = false
+                    }
 
                 })
-                .catch(() => {
+                .catch((e) => {
                     this.posts = [];
+                    console.log(e, "Không tìm thấy nhân viên");
                     this.emplNull=true
                     this.bottomNull = false
                 })
+                .finally(()=>
+                {   
+                    if(this.employeeEdit.typeSubmit == "EDIT" || this.employeeEdit.typeSubmit == "DELETE" || this.employeeEdit.typeSubmit == "ADD"){
+                        setTimeout(() => {
+                            this.isLoading = false;
+                            this.$emit("isLoading", this.isLoading);
+                        }, 400);
+                    }
+                    else{
+                        setTimeout(() => {
+                            this.isLoadingTr = false;
+                        }, 400);
+                    }
+                    
+                }
+                )
         },
 
         loadDepartment(){
@@ -436,6 +482,10 @@ export default {
             });
         },
 
+        loadDataAgain(keySearch,pageSize,pageNumber){
+            this.employeeEdit.typeSubmit = "LOAD";
+            this.loadDataWithPaging(keySearch,pageSize,pageNumber);
+        },
         /**
          * Chọn trang
          * Author: LHDO(19/11/2022)
@@ -445,7 +495,7 @@ export default {
                 this.isSelectPage[i] = false
             }
             this.isSelectPage[pageNumber] = true
-            this.loadDataWithPaging(this.keyWord,pageSize,pageNumber);
+            this.loadDataAgain(this.keyWord,pageSize,pageNumber)
         },
 
         /**
@@ -455,7 +505,7 @@ export default {
         nextPage(pageSize,pageNumber){
             pageNumber = this.pageNumber + 1;
             this.selectPage(pageSize,pageNumber);
-            this.loadDataWithPaging(this.keyWord,pageSize,pageNumber);
+            this.loadDataAgain(this.keyWord,pageSize,pageNumber)
             this.isCheck =false
         },
         
@@ -466,7 +516,7 @@ export default {
         prevPage(pageSize,pageNumber){
             pageNumber = this.pageNumber - 1;
             this.selectPage(pageSize,pageNumber);
-            this.loadDataWithPaging(this.keyWord,pageSize,pageNumber);
+            this.loadDataAgain(this.keyWord,pageSize,pageNumber)
         },
 
         /**
@@ -484,6 +534,7 @@ export default {
         this.loadDataWithPaging(this.keyWord,this.pageSize,this.pageNumber);
         this.isSelectPage[1] = true;
         this.isSelectNumberOfPage[0]= true;
+        
     },
 }
 </script>
