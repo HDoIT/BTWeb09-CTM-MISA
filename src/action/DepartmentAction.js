@@ -3,11 +3,11 @@ import axios from "axios";
 class DepartmentAction{
 
     getDepartment(){
-        return axios.get(`https://amis.manhnv.net/api/v1/Departments`)
+        return axios.get(`http://localhost:5080/api/v1/Departments`)
     }
 
     getDepartmentById(id){
-        return axios.get(`https://amis.manhnv.net/api/v1/Departments/${id}`)
+        return axios.get(`http://localhost:5080/api/v1/Departments/${id}`)
     }
 
 }

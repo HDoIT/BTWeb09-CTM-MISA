@@ -1,4 +1,4 @@
-<template @blur="close">
+<!-- <template @blur="close">
     <div class="context__menu" v-show="show" :style="style" ref="context">
             <slot></slot>
     </div>
@@ -73,4 +73,4 @@ export default {
 ul{
     list-style: none;
 }
-</style>
+</style> -->

@@ -16,7 +16,7 @@
 }
 
 .required{
-    border-color: red;
+    border-color: red !important;
     position: relative;
 }
 
@@ -170,8 +170,9 @@
 
 hr{
     margin-top: 32px;
-    margin-bottom: 24px;
-    border: .1px solid var(--tableColor);
+    margin-bottom: 16px;
+    border-color: #fff;
+    border-left: none;
 }
 
 .form__footer{
@@ -183,3 +184,16 @@ hr{
     margin-left: 6px;
 }
 
+.alert__warning{
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    background:rgba(0,0,0,.4);
+}
+.cbb__form{
+    background-color: transparent;
+}

@@ -39,7 +39,7 @@
                 <td>{{e.GenderName||""}}</td>
                 <td>{{formatDate(e.DateOfBirth)}}</td>
                 <td title="Số chứng minh nhân dân">{{e.IdentityNumber||""}}</td>
-                <td>{{e.PositionName||""}}</td>
+                <td>{{e.JobPositionName||""}}</td>
                 <td>{{e.DepartmentName||""}}</td>
                 <td>{{e.BankAccountNumber||""}}</td>
                 <td>{{e.BankName||""}}</td>
@@ -47,16 +47,9 @@
                 </td>
                 <td>
                     <span class="table__action">
-                        <a id="btn__sua" href="#" @click="onClickEditEmployee(e.EmployeeId)">Sửa</a> 
-                        <div class="mi mi-sort-down action_btn" :class="{active: showContextMenu2[index]}" @click="getPositionContext($event,e.EmployeeId,index)"></div>
+                        <a id="btn__sua" href="#" @click="onClickEditEmployee(e.EmployeeID)">Sửa</a> 
+                        <div class="mi mi-sort-down action_btn" :class="{active: showContextMenu2[index]}" @click="getPositionContext($event,e.EmployeeID,e.EmployeeCode,index)"></div>
                     </span>
-                    <!-- <div class="context-menu">
-                        <ul class="context__menu--item action-${e.EmployeeId}">
-                            <li>Nhân bản</li>
-                            <li @click="deleteEmployee(`${e.EmployeeId}`)">Xóa</li>
-                            <li>Ngưng sử dụng</li>
-                        </ul>
-                    </div> -->
                 </td>
                 <td></td>
                 <td></td>
@@ -66,12 +59,13 @@
 </template>
 
 <script>
+import DepartmentAction from '@/action/DepartmentAction';
 // import axios from 'axios';
 // import EmployeeAction from '../../action/EmployeeAction.js';
 import formatDate from '../../untils/formatDate';
 
 export default {
-    name: 'TableEmployee',
+    name: 'TheTable',
     props:{
         listEmployees: Array,
         clickGetPosition: Function,
@@ -87,6 +81,7 @@ export default {
         "topContext",
         "leftContext",
         "employeeId",
+        "employeeCode",
         "showMultipleDelete"
     ],
     data() {
@@ -100,7 +95,8 @@ export default {
             leftAc:0,
             checkedBg: [],
             listCheckbox:[],
-            isShowMultiple: true
+            isShowMultiple: true,
+            departmentName:'',
             // listCheckboxSelected:{}
         }
     },
@@ -177,9 +173,9 @@ export default {
          * @param {Number} idx  Index rows
          * Author: LHDO(19/11/2022)
          */
-        getPositionContext(e,empId,idx){
-            console.log();
+        getPositionContext(e,empId,empCode,idx){
             this.showContextMenu = !this.showContextMenu;
+            this.$emit("employeeCode", empCode);
             this.$emit("employeeId", empId);
             this.$emit("showContextMenu", this.showContextMenu);
 
@@ -209,7 +205,7 @@ export default {
                     this.topAc = e.target.getBoundingClientRect().y + 10
                     this.$emit("topContext",this.topAc);
                     this.$emit("leftContext",this.leftAc);
-                }
+            }
             
             if(this.showContextMenu){
                 this.showContextMenu2[idx] = true
@@ -220,13 +216,22 @@ export default {
 
         },
 
+        DepartmentName(string){
+            DepartmentAction.getDepartmentById(string).then(res=>{
+                this.departmentName = res.data.DepartmentName;
+            });
+            return this.departmentName;
+        }
+
     },
     updated() {
         // console.log(this.pageNumber);
+        this.DepartmentName('142cb08f-7c31-21fa-8e90-67245e8b283e');
     },
     
     // lấy dữ liệu khi component được tạo thành công
     created() {
+        
         // this.getPositionContext()
     }
 }

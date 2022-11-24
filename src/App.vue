@@ -1,22 +1,22 @@
 <template>
-  <header-app @isActiveBtnHeader="(msg)=> isActiveSidebar = msg"></header-app>
+  <the-header @isActiveBtnHeader="(msg)=> isActiveSidebar = msg"></the-header>
   <side-bar :isActiveSidebar="isActiveSidebar"></side-bar>
-  <main-app></main-app>
+  <the-main></the-main>
   <!-- <dialog-employee></dialog-employee> -->
 </template>
 
 <script>
 // import DialogEmployee from './components/DialogEmployee.vue'
-import HeaderApp from './components/layout/Header.vue'
-import MainApp from './components/layout/MainApp.vue'
+import TheHeader from './components/layout/TheHeader.vue'
+import TheMain from './components/layout/TheMain.vue'
 import SideBar from './components/layout/SideBar.vue'
 export default {
   name: 'App',
   components: {
     // HelloWorld
-    HeaderApp,
+    TheHeader,
     SideBar,
-    MainApp,
+    TheMain,
     // DialogEmployee
   },
   data() {

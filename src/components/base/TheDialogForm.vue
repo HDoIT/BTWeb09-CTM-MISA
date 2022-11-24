@@ -13,8 +13,8 @@
                             </span>
                         </div>
                         <div class="form__header--right">
-                            <div class="mi mi-icon-help"></div>
-                            <div class="mi mi-icon-times" @click="handelClickCloseDialog()"></div>
+                            <div class="mi mi-icon-help" @click="help()"></div>
+                            <div class="mi mi-icon-times" @click="handelClose()" ></div>
                         </div>
                     </div>
                     <div class="form__main">
@@ -38,7 +38,7 @@
                                         <input type="text" name="tendv" :class="{required: validate.isDepartmentName}" class="input combobox__input input__employee" ref="tendv" :value="dataEmp.departmentName" @input="enterDepartmentName">
                                         <button type="button" class="combobox__button cbb__form" @click="handelClickToggleCombobox()"><div class="mi mi-chevron-down"></div></button>
                                             <div class="combobox__data combobox__form" v-bind:class="{active: isActiveCombobox}">
-                                                <div class="data-item" v-for="(item, index) in listDepartment" :class="{active: isSelectNumberOfPage[index]}"  :key="index" @click="handelClickSelectDepartment(item.DepartmentName,index,item.DepartmentId)">
+                                                <div class="data-item" v-for="(item, index) in listDepartment" :class="{active: isSelectNumberOfPage[index]}"  :key="index" @click="handelClickSelectDepartment(item.DepartmentName,index,item.DepartmentID)">
                                                     <label for="data-item-1">{{item.DepartmentName}}</label>
                                                 </div>
                                             </div>
@@ -59,11 +59,11 @@
                                     <div class="field field-60">
                                         <label>Giới tính</label>
                                         <div class="gender">
-                                            <input type="radio" id="nam" name="gioitinh" value="1" v-model="dataEmp.gender" checked>
+                                            <input type="radio" id="nam" name="gioitinh" :value="0" v-model="dataEmp.gender" checked @click="click">
                                             <label for="nam">Nam</label>
-                                            <input type="radio" id="nu" name="gioitinh" value="0" v-model="dataEmp.gender" >
+                                            <input type="radio" id="nu" name="gioitinh" :value="1" v-model="dataEmp.gender" >
                                             <label for="nu">Nữ</label>
-                                            <input type="radio" id="khac" name="gioitinh" value="2" v-model="dataEmp.gender" >
+                                            <input type="radio" id="khac" name="gioitinh" :value="2" v-model="dataEmp.gender" >
                                             <label for="khac">Khác</label>
                                         </div>
                                     </div>
@@ -131,8 +131,15 @@
                     </div>
                 </form>
             </div>
-            <div class="alert__warning" v-show="isShowAlert">
-                <alert-warning :closeAlert="showAlert" @showAlert="(c)=> isShowAlert = c">
+            <div class="alert__warning" v-if="isShowAlert">
+                <alert-warning 
+                    @showAlert="(c)=> isShowAlert = c"
+                    :isAlertNull="isAlertNull"
+                    :isAlertWarning="isAlertWarning"
+                    :isQuestion="isQuestion"
+                    :closeForm="handelClickCloseDialog"
+                    :saveUpdate="updateForm"
+                    >
                     {{textErr}}
                 </alert-warning>
             </div>
@@ -146,7 +153,7 @@ import AlertWarning from '../base/alert/AlertWarning.vue';
 import moment from 'moment';
 import formatDate from '../../untils/formatDate';
 export default {
-  components: { AlertWarning },
+    components: { AlertWarning },
     props:{
         employeeId: String,
         loadData:{
@@ -168,12 +175,15 @@ export default {
         },
         employeeFilter:{
             type: String
-        }
+        },
+        
     },
     emits:["isActiveShow","focusForm"],
         data() {
         return {
-            checkGender:1,
+            isAlertNull: false,
+            isAlertWarning: false,
+            isQuestion: false,
             textErr: '',
             isShowAlert: false,
             isActiveCombobox: false,
@@ -186,9 +196,28 @@ export default {
             dataEmp: {
                 employeeCode:'',
                 employeeName : '',
-                departmentId: '', 
+                departmentId: null, 
                 departmentName:'',
-                gender : 1, 
+                gender : 0,
+                jobPosition : '', 
+                dateOfBirth : '', 
+                identityNumber : '',
+                identityDate : '', 
+                identityPlace : '', 
+                address : '', 
+                phoneNumber : '',
+                telephoneNumber : '',
+                email : '', 
+                bankAccountNumber : '',
+                bankName : '',
+                bankBranchName : '',
+            },
+            changeDataEmp: {
+                employeeCode:'',
+                employeeName : '',
+                departmentId: null, 
+                departmentName:'',
+                gender : 0,
                 jobPosition : '', 
                 dateOfBirth : '', 
                 identityNumber : '',
@@ -210,6 +239,9 @@ export default {
         }
     },
     methods: {
+        click(e){
+            console.log(typeof(e.target.value))
+        },
 
         /**
          * Validate input Mã nhân viên
@@ -247,9 +279,9 @@ export default {
             
             if(this.dataEmp.departmentName == '')
             {
-                this.validate.isDepartmentName = true
+                this.validate.isDepartmentName = true;
             }
-            this.validate.isDepartmentName = false
+            this.validate.isDepartmentName = false;
         },
 
         /**
@@ -282,6 +314,7 @@ export default {
             this.isActiveCombobox = false;
             this.selectComboboxActive(idx);
             this.dataEmp.departmentId = idDp;
+            this.validate.isDepartmentName = false;
         },
 
         /**
@@ -298,13 +331,234 @@ export default {
         /**
          * Hiển thị cảnh báo
          * @param {string} text Nội dung cảnh báo
+         * @param {bool} typeAlert Loại cảnh báo
          * Author: LHDO(19/11/2022)
          */
-        showAlertWarning(text){
+        showAlertWarning(text,typeAlert){
+            this.isAlertNull = typeAlert;
+            this.isAlertWarning = !this.isAlertNull
             this.isShowAlert = true;
             this.textErr = text;
         },
 
+
+        isInputValidateEmployee(){
+            var isValid = true
+            // eslint-disable-next-line no-useless-escape
+               
+
+            return isValid;
+        },
+
+        isValidateDate(){
+            // console.log(birthday.val());
+            var isValidDate = true;
+            var dob =new Date(this.dataEmp.dateOfBirth);
+            var dateCr = new Date();
+
+            var month = dob.getMonth() + 1;
+            var day   = dob.getDate();  
+            var year  = dob.getFullYear();
+            console.log(dateCr.getFullYear(),dateCr.getDate(),dateCr.getMonth() + 1,month,day,year);
+            if(year > dateCr.getFullYear()){
+                isValidDate = false;
+            }
+            else if(year == dateCr.getFullYear()){
+                if(month > dateCr.getMonth()+ 1){
+                    isValidDate = false;
+                }
+                else if(month == dateCr.getMonth()+ 1){
+                    if(day > dateCr.getDate()){
+                        isValidDate = false;
+                    }
+                    else{
+                        isValidDate = true;
+                    }
+                }
+                else{
+                    isValidDate = true;
+                }
+            }
+            else{
+                isValidDate = true;
+            }
+
+            return isValidDate;
+        },
+
+        saveForm(){
+            // eslint-disable-next-line no-useless-escape
+            var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+            var manv = this.$refs.manv.value;
+
+            if(this.dataEmp.departmentName.trim() == '')
+            {
+                this.validate.isDepartmentName = true
+                this.showAlertWarning("Tên đơn vị không được để trống!",this.validate.isDepartmentName)
+                this.$refs.tendv.focus();
+                
+            }
+            if(this.dataEmp.employeeName.trim() == '' || this.dataEmp.employeeName.trim() === '' || this.dataEmp.employeeName == null)
+            {
+                this.validate.isEmployeeName = true
+                this.showAlertWarning("Tên nhân viên không được để trống!",this.validate.isEmployeeName)
+                this.$refs.tennv.focus();
+            }
+            if(this.dataEmp.employeeCode.trim() == ''){
+                // alert('MÃ nhân viên không được phép để trống')
+                this.validate.isEmployeeCode = true
+                this.showAlertWarning("Mã nhân viên không được để trống!",this.validate.isEmployeeCode)
+                this.$refs.manv.focus();
+            }
+            else{
+                if(!Number.isInteger(Number(manv.split('').at(-1)))){
+                    this.showAlertWarning("Mã nhân viên phải kết thúc bằng số",false)
+                }
+                if(format.test(manv)){
+                    this.showAlertWarning("Mã nhân viên không được chứa ký tự đặc biệt!",false)
+                }
+                if(manv.length>10){
+                    
+                    this.showAlertWarning("Mã nhân viên không lớn hơn 10 ký tự",false)
+                }
+                if(this.isValidateDate()){
+                    EmployeeAction.createEmployee({...this.dataEmp})
+                        .then(()=>{
+                            this.handelClickCloseDialog();
+                            this.loadData(this.employeeFilter,this.pageSize,this.pageNumber);
+                            
+                        })
+                        .catch((e)=>
+                        {
+                            if(this.dataEmp.departmentName != null && this.dataEmp.employeeName != '' && this.dataEmp.employeeCode != ''
+                            && Number.isInteger(Number(manv.split('').at(-1))) && !format.test(manv))
+                            {
+                                this.$refs.manv.focus();
+                                this.validate.isEmployeeCode = true
+                                this.showAlertWarning(e.response.data.UserMsg,false);
+                            }
+                        }
+                    );
+                }
+                else{
+                    this.showAlertWarning("Ngày sinh không được lớn hơn ngày hiện tại",false)
+                }
+                
+            }
+            
+        },
+        handelClose(){
+            if(this.typeForm=="ADD"){
+                this.isQuestion = true;
+                this.showAlertWarning("Dữ liệu đã bị thay đổi. Bạn có muốn cất không?")
+            }
+            if(this.typeForm=="EDIT"){
+                console.log(JSON.stringify(this.changeDataEmp)===JSON.stringify(this.dataEmp));
+                if(JSON.stringify(this.changeDataEmp)===JSON.stringify(this.dataEmp))
+                {
+                    this.handelClickCloseDialog();
+                    this.isQuestion = false;
+                }
+                else{
+                    this.isQuestion = true;
+                    this.showAlertWarning("Dữ liệu đã bị thay đổi. Bạn có muốn cất không?")
+                }
+            }
+
+        },
+
+        updateForm(){
+            this.isQuestion = false;
+            // if(this.dataEmp.employeeCode == '')
+            // {
+            //     this.validate.isEmployeeCode = true;
+            //     this.showAlertWarning("Mã nhân viên không được để trống!",true)
+            // }
+            // else if(this.dataEmp.employeeName == '')
+            // {
+            //     this.validate.isEmployeeName = true
+            //     this.showAlertWarning("Tên nhân viên không được để trống!",true)
+            // }
+            // else if(this.dataEmp.departmentName == '')
+            // {
+            //     this.validate.isDepartmentName = true
+            //     this.showAlertWarning("Tên đơn vị không được để trống!",true)
+            // }
+            // else{
+            //         if(this.isValidateDate()){
+            //             alert(this.isValidateDate())
+            //             EmployeeAction.updateEmployee(this.employeeId,{...this.dataEmp})
+            //                 .then(()=>{
+            //                             this.handelClickCloseDialog();
+            //                             this.loadData(this.employeeFilter,this.pageSize,this.pageNumber);
+                                    
+            //                 }).catch(()=>
+            //                     {
+            //                         setTimeout(() => {
+            //                             this.showAlertWarning("Mã nhân viên đã tồn tại trong hệ thống",false)
+            //                         }, 4000);
+            //                 }
+            //             );
+                            
+            //         }
+            //         else{
+            //             this.showAlertWarning("Ngày sinh không được lớn hơn ngày hiện tại",false)
+            //         }
+                 
+            // }
+            // eslint-disable-next-line no-useless-escape
+            var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+            var manv = this.$refs.manv.value;
+            if(this.dataEmp.departmentName.trim() == '')
+            {
+                this.validate.isDepartmentName = true
+                this.showAlertWarning("Tên đơn vị không được để trống!",this.validate.isDepartmentName)
+            }
+            if(this.dataEmp.employeeName.trim() == '' || this.dataEmp.employeeName.trim() === '' || this.dataEmp.employeeName == null)
+            {
+                this.validate.isEmployeeName = true
+                this.showAlertWarning("Tên nhân viên không được để trống!",this.validate.isEmployeeName)
+            }
+            if(this.dataEmp.employeeCode.trim() == ''){
+                // alert('MÃ nhân viên không được phép để trống')
+                this.validate.isEmployeeCode = true
+                this.showAlertWarning("Mã nhân viên không được để trống!",this.validate.isEmployeeCode)
+            }
+            else{
+                if(!Number.isInteger(Number(manv.split('').at(-1)))){
+                    this.showAlertWarning("Mã nhân viên phải kết thúc bằng số",false)
+                }
+                if(format.test(manv)){
+                    this.showAlertWarning("Mã nhân viên không được chứa ký tự đặc biệt!",false)
+                }
+                if(manv.length>10){
+                    this.showAlertWarning("Mã nhân viên không lớn hơn 10 ký tự",false)
+                }
+                if(this.isValidateDate()){
+                        EmployeeAction.updateEmployee(this.employeeId,{...this.dataEmp})
+                            .then(()=>{
+                                        this.handelClickCloseDialog();
+                                        this.loadData(this.employeeFilter,this.pageSize,this.pageNumber);
+                                    
+                            }).catch((e)=>
+                            {
+                                if(this.dataEmp.departmentName != null && this.dataEmp.employeeName != '' && this.dataEmp.employeeCode != ''
+                                && Number.isInteger(Number(manv.split('').at(-1))) && !format.test(manv))
+                                {
+                                    this.$refs.manv.focus();
+                                    this.validate.isEmployeeCode = true
+                                    this.showAlertWarning(e.response.data.UserMsg,false);
+                                }
+                            }
+                        );
+                }
+                else{
+                    this.showAlertWarning("Ngày sinh không được lớn hơn ngày hiện tại",false)
+                }
+                
+            }
+            
+        },
         /**
          * Xử lý submit form
          * Author: LHDO(19/11/2022)
@@ -312,44 +566,14 @@ export default {
         addEmp(e){
             e.preventDefault();
 
-            if(this.dataEmp.employeeCode == ''){
-                // alert('MÃ nhân viên không được phép để trống')
-                this.validate.isEmployeeCode = true
-            }
-            if(this.dataEmp.employeeName== '')
-            {
-                this.validate.isEmployeeName = true
-            }
-            if(this.dataEmp.departmentName == '')
-            {
-                this.validate.isDepartmentName = true
-            }
-            if(this.typeForm === "ADD"){
-                EmployeeAction.createEmployee({...this.dataEmp})
-                .then(res=>{
-                    console.log(res);
-                    this.handelClickCloseDialog();
-                    this.loadData(this.employeeFilter,this.pageSize,this.pageNumber);
-                }).catch(e=>
-                {
-                    console.log(e.response.data.userMsg);
-                    this.showAlertWarning(e.response.data.userMsg)
+                this.isInputValidateEmployee();
+                if(this.typeForm === "ADD"){                    
+                    this.saveForm();
                 }
-            );
-            }
-            if(this.typeForm === "EDIT"){
-                EmployeeAction.updateEmployee(this.employeeId,{...this.dataEmp})
-                .then(res=>{
-                    console.log(res);
-                    this.handelClickCloseDialog();
-                    this.loadData(this.employeeFilter,this.pageSize,this.pageNumber);
-                }).catch(e=>
-                {
-                    console.log(e.response.data.userMsg);
-                    this.showAlertWarning(e.response.data.userMsg)
-                }
-            ); 
-            }
+                if(this.typeForm === "EDIT"){
+                    this.updateForm();
+                }                   
+            
         },
 
         /**
@@ -557,7 +781,7 @@ export default {
         
         //Lấy danh sách bản ghi phòng ban
         DepartmentAction.getDepartment()
-            .then(res=>{  
+            .then((res)=>{  
                 this.listDepartment = [...res.data]
                 console.log(res.data);
         })
@@ -565,25 +789,25 @@ export default {
         //Hiển thị thông tin dữ liệu của nhân viên cần update theo ID
         if(this.typeForm==="ADD"){
             EmployeeAction.getDataUpdate(this.employeeId)
-            this.dataEmp.employeeCode ="NV"+Math.round(Math.random()*100000);
+            // this.dataEmp.employeeCode ="NV"+Math.round(Math.random()*100000);
         }
         if(this.typeForm ==="EDIT"){
             EmployeeAction.getDataUpdate(this.employeeId)
             .then(
                 res=>{
-                    DepartmentAction.getDepartmentById(res.data.DepartmentId).then(res=>{
-                        console.log(res);
-                        this.dataEmp.departmentName = res.data.DepartmentName
-                        this.dataEmp.departmentId = res.data.DepartmentId
+                    DepartmentAction.getDepartmentById(res.data.DepartmentID).then((res)=>{
+                        this.dataEmp.departmentName = res.data.DepartmentName 
+                        this.changeDataEmp.departmentName = res.data.DepartmentName
                     })
                     this.dataEmp.employeeCode = res.data.EmployeeCode
                     this.dataEmp.employeeName = res.data.EmployeeName
                     this.dataEmp.gender = res.data.Gender
-                    this.dataEmp.jobPosition = res.data.PositionName
+                    this.dataEmp.departmentId = res.data.DepartmentID
+                    this.dataEmp.jobPosition = res.data.JobPositionName
                     this.dataEmp.dateOfBirth =this.convertDate(res.data.DateOfBirth);
                     this.dataEmp.identityNumber = res.data.IdentityNumber
-                    this.dataEmp.identityDate = this.convertDate(res.data.IdentityDate)
-                    this.dataEmp.identityPlace = res.data.IdentityPlace
+                    this.dataEmp.identityDate = this.convertDate(res.data.IdentityIssueDate)
+                    this.dataEmp.identityPlace = res.data.IdentityIssuePlace
                     this.dataEmp.address = res.data.Address
                     this.dataEmp.phoneNumber = res.data.PhoneNumber
                     this.dataEmp.telephoneNumber = res.data.TelephoneNumber
@@ -591,6 +815,26 @@ export default {
                     this.dataEmp.bankAccountNumber = res.data.BankAccountNumber
                     this.dataEmp.bankName = res.data.BankName
                     this.dataEmp.bankBranchName = res.data.BankBranchName
+                    //OBjec
+                    this.changeDataEmp.employeeCode = res.data.EmployeeCode
+                    this.changeDataEmp.employeeName = res.data.EmployeeName
+                    this.changeDataEmp.gender = res.data.Gender
+                    this.changeDataEmp.departmentId = res.data.DepartmentID
+                    this.changeDataEmp.jobPosition = res.data.JobPositionName
+                    this.changeDataEmp.dateOfBirth =this.convertDate(res.data.DateOfBirth);
+                    this.changeDataEmp.identityNumber = res.data.IdentityNumber
+                    this.changeDataEmp.identityDate = this.convertDate(res.data.IdentityIssueDate)
+                    this.changeDataEmp.identityPlace = res.data.IdentityIssuePlace
+                    this.changeDataEmp.address = res.data.Address
+                    this.changeDataEmp.phoneNumber = res.data.PhoneNumber
+                    this.changeDataEmp.telephoneNumber = res.data.TelephoneNumber
+                    this.changeDataEmp.email = res.data.Email
+                    this.changeDataEmp.bankAccountNumber = res.data.BankAccountNumber
+                    this.changeDataEmp.bankName = res.data.BankName
+                    this.changeDataEmp.bankBranchName = res.data.BankBranchName
+
+                    console.log("dt",JSON.stringify(this.dataEmp));
+                    console.log(JSON.stringify(this.changeDataEmp));
                 }
             )
         }
@@ -601,17 +845,4 @@ export default {
 <style scoped>
 
 @import url('../../style/components/DialogEmployee.css');
-.alert__warning{
-    position: absolute;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
-    background:rgba(0,0,0,.4);
-}
-.cbb__form{
-    background-color: transparent;
-}
 </style>

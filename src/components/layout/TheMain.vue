@@ -3,7 +3,7 @@
         <div class="context__menu" v-if="show" :style="{'top': top+ 'px','left': left+'px'}" >  
             <ul class="context__menu--item">
                 <li>Nhân bản</li>
-                <li @click="handelClickDeleteEmployee(idDelete,pageSize,pageNumber)">Xóa</li>
+                <li @click="handelClickDeleteEmployee()">Xóa</li>
                 <li>Ngưng sử dụng</li>
             </ul>
         </div>
@@ -23,8 +23,8 @@
                 </div>
                 <div class="button-list">
                     <div class="search">
-                        <input type="text" id="input-search" class="input-search" placeholder="Tìm kiếm nhân viên" v-model="keyWord" @input="hanldeChangeInput"/>
-                        <div class="mi mi-search"></div>
+                        <input type="text" id="input-search" class="input-search" placeholder="Tìm kiếm nhân viên" v-model="keyWord" @keyup.enter="handelSearch()"/>
+                        <div class="mi mi-search"  @click="handelSearch()"></div>
                     </div>
                     <div class="mi mi-reload" @click="clickReload()"></div>
                 </div>
@@ -32,22 +32,25 @@
             </div>
             <div class="tbl-employee">
                 <!-- <the-loader></the-loader> -->
-                <table-employee 
-                    :listEmployees="posts"
+                <the-table 
                     @onClickEditEmployee="onClickEditEmployee"
                     @showContextMenu="(sh)=>show = sh"
                     @handelDeleteEmployee="deleteEmployee"
-                    :clickGetPosition="getPositionContext"
+                    @showMultipleDelete="(c)=>isMultipleDelete = c"
                     @topContext="(c)=>top = c"
                     @leftContext="(c)=>left = c"
                     @employeeId="(c)=>idDelete = c"
+                    @employeeCode="(c)=>employeeCode = c"
+                    :listEmployees="posts"
+                    :clickGetPosition="getPositionContext"
                     :pageSize="pageSize"
                     :totalRc="count"
                     :pageNumber="pageNumber"
                     :listCheckbox="listCheckbox"
                     :isCheck="isCheck"
-                    @showMultipleDelete="(c)=>isMultipleDelete = c"
-                ></table-employee>
+                    :listDepartment="listDepartment"
+                >
+                </the-table>
                 <!-- <div class="margin__right"> -->
                     
             </div>
@@ -59,7 +62,7 @@
                     <div class="right__bot" style="height:200px"></div>
             </div>
             <div class="container__main--bottom" v-if="bottomNull">
-                <div class="total">Total: <b>{{count}}</b> record</div>
+                <div class="total">Tổng số: <b>{{count}}</b> bản ghi</div>
                 <div class="paging">
                     <div class="paging__combobox">
                         <div class="combobox">
@@ -73,9 +76,21 @@
                         </div>
                     </div>
                     <div class="paging__number">
-                        <button class="btn__paging--prev" @click="prevPage(pageSize,pageNumber)" :disabled="isPrevPage">Trước</button>
-                        <button v-for="n in totalPage" :key="n" class="btn__paging" :class="{active: isSelectPage[n]}" @click="selectPage(pageSize,n)">{{n}}</button>
+
+                        <button class="btn__paging--prev" :class="{'active' : (pageNumber != 1)}" @click="prevPage(pageSize,pageNumber)" :disabled="isPrevPage">Trước</button>
+
+                        <button class="btn__paging" @click="selectPage(pageSize,1)" v-if="pageNumber > 2"> {{pages[0]}}</button>
+                        <li class="page__dots" v-if="pageNumber > 2">...</li>
+
+                        <button class="btn__paging" v-for="currentPage of displayedPages" :key="currentPage" @click="selectPage(pageSize,currentPage)" :class="{'active' : (pageNumber === (currentPage))}">{{currentPage}}</button>
+
+                        <li class="page__dots" v-if="pageNumber < pages.length - 2">...</li>
+                        <button class="btn__paging" v-if="pageNumber < pages.length - 2" @click="selectPage(pageSize,pages.length)"> {{pages[pages.length - 1]}}</button>
+
                         <button class="btn__paging--prev" @click="nextPage(pageSize,pageNumber)" :disabled="isNextPage">Sau</button>
+                        <!-- <button class="btn__paging--prev" @click="prevPage(pageSize,pageNumber)" :disabled="isPrevPage">Trước</button>
+                        <button v-for="n in (totalPage =5)" :key="n" class="btn__paging" :class="{active: isSelectPage[n]}" @click="selectPage(pageSize,n)">{{n}}</button>
+                        <button class="btn__paging--prev" @click="nextPage(pageSize,pageNumber)" :disabled="isNextPage">Sau</button> -->
                     </div>
                     <div class="paging__button"></div>
                     <div class="right__bot"></div>
@@ -83,51 +98,62 @@
             </div>
         </div>
     </div>
-        <dialog-employee
-                v-if="employeeEdit.isShowFormEmployeeEdit"
-                :loadData="loadDataWithPaging"
-                :pageSize="pageSize"
-                :pageNumber="pageNumber"
-                :employeeFilter="keyWord"
-                :selectComboboxActive="selectComboboxActive"
-                :typeForm="employeeEdit.typeSubmit"
-                :employeeId="employeeEdit.employeeID"
-                :handelClickCloseDialog="closeForm"
-                :handelClickOpenDialog="openForm"
-            >
-        </dialog-employee>
-        <!-- <div class="dialog__form--update" v-show="isActiveDialogUpdate">
-        <dialog-employee-update @isActiveShowUpd="(c)=> isActiveDialogUpdate = c"
-            :loadData="loadDataWithPaging"
-            :pageSize="pageSize"
-            :pageNumber="pageNumber"></dialog-employee-update>
-    </div> -->
+    <the-dialog-form v-if="employeeEdit.isShowFormEmployeeEdit"
+        :loadData="loadDataWithPaging"
+        :pageSize="pageSize"
+        :pageNumber="pageNumber"
+        :employeeFilter="keyWord"
+        :selectComboboxActive="selectComboboxActive"
+        :typeForm="employeeEdit.typeSubmit"
+        :employeeId="employeeEdit.employeeID"
+        :handelClickCloseDialog="closeForm"
+        :handelClickOpenDialog="openForm"
+    >
+    </the-dialog-form>
+    <div class="alert__warning" v-show="isShowAlertConfirm">
+            <div class="alert">
+            <div class="alert__form--title">
+                <div class="mi mi-warning"></div>
+                <div class="text-error">
+                    Bạn có chắc chắn muốn xóa Nhân viên &lt;{{employeeCode}}> không?
+                </div>
+            </div>
+            <hr>
+            <div class="alert__form--bottom">
+                <div class="btn btn__close--warning btn__white" ref="autofocusNo" @click="handelCancelDelete()">Không</div>
+                <div class="btn btn__close--warning" @click="handelConfirmDelete(idDelete,pageSize,pageNumber)">Có</div>
+            </div>
+        </div>
+    </div>
 
 </template>
 
 <script>
-// import axios from 'axios';
-import TableEmployee from '../base/Table.vue';
-import DialogEmployee from '../base/DialogEmployee.vue';
+import TheTable from '../base/TheTable.vue';
+import TheDialogForm from '../base/TheDialogForm.vue';
 import {listNumberOfPage} from '../../i18ncomponent/i18n'
 import EmployeeAction from '../../action/EmployeeAction.js';
 import formatDate from '../../untils/formatDate';
+import DepartmentAction from '@/action/DepartmentAction';
 // import TheLoader from '../common/loader/Loader.vue'
 export default {
     components:{
-        TableEmployee,
-        DialogEmployee,
+        TheTable,
+        TheDialogForm,
         // TheLoader
     },
     props:{
         
     },
-
     // formatDate:[formatDate],
     data() {
         return {
+            employeeCode:'',
+            isShowAlertConfirm: false,
             isCheck: false,
+            isConfirm: false,
             posts: [],
+            listDepartment:[],
             error: [],
             count: 0, 
             isActiveDialog: false,
@@ -148,7 +174,7 @@ export default {
             left: 0,
             show: false,
             idDelete: '',
-            isMultipleDelete: false,
+            isMultipleDelete: true,
             formatDate,
             employeeEdit: {
                 employeeID: "",
@@ -158,7 +184,9 @@ export default {
             keyWord:"",
             emplNull: false,
             bottomNull: true,
-            listCheckbox: []
+            listCheckbox: [],
+            pages:[],
+            backToArray: [],
         }
     },  
     computed: {
@@ -168,10 +196,28 @@ export default {
                 left: this.left + 'px',
             }
         },
-        
-    },  
-    methods:{
 
+        displayedPages() {
+            
+            if (this.pageNumber === 1) {
+                return this.pages.slice(this.pageNumber - 1, this.pageNumber + 2);
+            }
+            else if (this.pageNumber === this.pages.length) {
+                return this.pages.slice(this.pageNumber - 5, this.pageNumber + 1);
+            }
+            else if (this.pageNumber >= 2 && this.pageNumber <= this.pages.length-3) {
+                return this.pages.slice(this.pageNumber - 2, this.pageNumber + 1);
+            }
+            else if (this.pageNumber > this.pages.length-3) {
+                return this.pages.slice(this.pageNumber - 4, this.pageNumber + 1);
+            }
+            else {
+                return this.pages.slice(this.pageNumber - 2, this.pageNumber + 3);
+            }
+        },
+        
+    },
+    methods:{
         /**
          * Đóng form thông tin nhân viên
          * Author: LHDO(19/11/2022)
@@ -185,25 +231,9 @@ export default {
          * Author: LHDO(19/11/2022)
          */
         openForm(){
+            //check null
             this.employeeEdit.isShowFormEmployeeEdit = true
         },
-
-
-        // close(){
-        //     this.show = false;
-        //     this.left = 0,
-        //     this.top = 0
-        // },
-
-        // openContextMenu(id){
-        //     console.log(id);
-        //     this.show = true;
-        //     this.idDelete = id;
-        // },
-
-        // closePagination(){
-        //     this.isActiveCombobox = false;
-        // },
 
         /**
          * Click hiển thị thông tin nhân viên
@@ -241,10 +271,11 @@ export default {
          */
         handelClickSelectPageSize(keyword,value,idx){
             this.pageSize = value;
-            this.loadDataWithPaging(this.keyWord,this.pageSize,this.pageNumber);
+            // this.loadDataWithPaging(this.keyWord,this.pageSize,this.pageNumber);
             this.selectComboboxActive(idx)
             this.isActiveCombobox = false
             this.isSelectPage[1] = true
+            this.backToArray=[];
             this.loadDataWithPaging(keyword,this.pageSize,1)
         },
 
@@ -263,10 +294,18 @@ export default {
          * Lấy giá trị nhập vào trong input tìm kiếm
          * Author: LHDO(19/11/2022)
          */
-        hanldeChangeInput(e) {
-            this.keyWord = e.target.value
-            this.loadDataWithPaging(this.keyWord,this.pageSize,1)
+        // hanldeChangeInput(e) {
+        //         if(e.target.value=='')
+        //         {
+        //                 this.loadDataWithPaging(e.target.value,this.pageSize,1)
+        //         }
+        // },
+
+        handelSearch(){
             console.log(this.keyWord);
+            
+            this.backToArray=[];
+            this.loadDataWithPaging(this.keyWord,this.pageSize,1)
         },
 
         /**
@@ -294,31 +333,76 @@ export default {
         //     this.typeForm = "EDIT";
         // },
 
+        getAllEmp(){
+            EmployeeAction.getAll().then((res)=>{
+                console.log(res.data);
+            })
+        },
+
+        handelCancelDelete(){
+            this.isShowAlertConfirm = false;
+        },
+
+        handelConfirmDelete(id,pageSize,pageNumber){
+            this.isShowAlertConfirm = false;
+            if(this.isConfirm){
+                EmployeeAction.deleteEmployee(id).then(
+                        ()=>{
+                        this.loadDataWithPaging(this.keyWord,pageSize,pageNumber)
+                    }
+                )
+            }
+        },
+
         /**
          * Xóa bản ghi
          * Author: LHDO(19/11/2022)
         */
-        handelClickDeleteEmployee(id,pageSize,pageNumber){
-            EmployeeAction.deleteEmployee(id).then(
-                res=>{
-                    console.log(res);
-                    this.loadDataWithPaging(this.keyWord,pageSize,pageNumber)
-                    this.show = false;
-                }
-            )
+        handelClickDeleteEmployee(){
+            this.isShowAlertConfirm = true;
+            this.show = false;
+            this.isConfirm = true;       
         },
 
+        // compareValues(key, order = 'asc') {
+        //     return function(a, b) {
+        //         // eslint-disable-next-line no-prototype-builtins
+        //         if(!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+        //         // nếu không tồn tại
+        //             return 0;
+        //         }
+
+        //         const varA = (typeof a[key] === 'string') ?
+        //         a[key].toUpperCase() : a[key];
+        //         const varB = (typeof b[key] === 'string') ?
+        //         b[key].toUpperCase() : b[key];
+
+        //         let comparison = 0;
+        //         if (varA > varB) {
+        //         comparison = 1;
+        //         } else if (varA < varB) {
+        //         comparison = -1;
+        //         }
+        //         return (
+        //         (order == 'desc') ? (comparison * -1) : comparison
+        //         );
+        //     };
+        // },
         /**
          * Load dữ liệu có phân trang, tìm kiếm
          * Author: LHDO(19/11/2022)
         */
         loadDataWithPaging(keyWord,pageSize,pageNumber){
-            console.log("a",keyWord);
             EmployeeAction.getAllPaging(keyWord,pageSize,pageNumber)
             .then(response =>{
-                    this.posts = [... response.data.Data]
-                    this.count = response.data.TotalRecord
-                    this.totalPage = response.data.TotalPage
+                    this.posts = [... response.data.Data];
+                    this.totalPage = response.data.totalPages
+                    for (let i = 1; i <= this.totalPage; i++) {
+                       this.backToArray.push(i)
+                    }
+                    const uniqueSet = new Set(this.backToArray)
+                    this.pages = [...uniqueSet];
+                    this.count = response.data.totalCount
                     this.$emit('countEmp', this.count)
                     this.pageSize = pageSize
                     this.pageNumber = pageNumber
@@ -336,13 +420,20 @@ export default {
                     }
                     this.emplNull= false,
                     this.bottomNull= true
+                    // this.setPages();
+
                 })
-                .catch(e => {
-                    console.log("Không tìm thấy nhân viên",e);
+                .catch(() => {
                     this.posts = [];
                     this.emplNull=true
                     this.bottomNull = false
                 })
+        },
+
+        loadDepartment(){
+            DepartmentAction.getDepartment().then(res=>{
+                this.listDepartment = [...res.data]
+            });
         },
 
         /**
@@ -350,7 +441,7 @@ export default {
          * Author: LHDO(19/11/2022)
         */
         selectPage(pageSize,pageNumber){
-            for(let i = 1; i<=this.totalPage; i++){
+            for (let i = 1; i <= this.totalPage; i++) {
                 this.isSelectPage[i] = false
             }
             this.isSelectPage[pageNumber] = true
@@ -383,19 +474,16 @@ export default {
          * Author: LHDO(19/11/2022)
         */
         onClickEditEmployee(employeeID) {
-            console.log("employeeID main:", employeeID);
             const { employeeEdit } = this;
             employeeEdit.employeeID = employeeID;
             employeeEdit.typeSubmit = "EDIT";
             employeeEdit.isShowFormEmployeeEdit = true;
-            console.log(employeeEdit.typeSubmit);
         },
     },
     created() {
         this.loadDataWithPaging(this.keyWord,this.pageSize,this.pageNumber);
         this.isSelectPage[1] = true;
         this.isSelectNumberOfPage[0]= true;
-        // console.log(formatDate("2022-10-11"));
     },
 }
 </script>
@@ -404,37 +492,10 @@ export default {
 
 @import url('../../style/layout/MainApp.css');
 @import url('../../style/components/Table.css');
-.context__menu{
-    position: fixed !important;
-    top: 20px;
-    z-index: 1000;
-}
 
-.context__menu--item{
-    margin-top: 12px;
-    right: 100px;
-    background-color: #fff;
-    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
-    border-radius: 2px;
-    z-index: 1000;
-    cursor: pointer;
-    border: 2px solid var(--tableColor);
+.mi-warning{
+    background-position: -598px -463px;
+	width: 50px;
+	height: 37px;
 }
-
-.context__menu--item li{
-    padding: 8px;
-}
-
-.context__menu--item li:hover{
-    background-color: var(--tableColor);
-}
-
-.context__menu--item.active{
-    display: block;
-}
-
-ul{
-    list-style: none;
-}
-
 </style>
