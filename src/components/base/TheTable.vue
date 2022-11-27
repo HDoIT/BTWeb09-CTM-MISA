@@ -31,7 +31,7 @@
                 <td>
                     <div class="loading" v-if="isLoadingTr"></div>
                     <div class="checkbox-rect" v-if="!isLoadingTr">
-                        <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeID" :id="e.EmployeeCode" v-model="listCheckbox[pageNumber]" @change='updateCheckall()'>
+                        <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeID" :id="e.EmployeeCode" v-model="listCheckbox" @change='updateCheckall()'>
                         <label :for="e.EmployeeCode"></label>
                     </div>
                 </td>
@@ -121,7 +121,7 @@ export default {
                     listCheckbox.push(this.listEmployees[key].EmployeeID);
                 }
             }
-            this.listCheckbox[this.pageNumber] = [...listCheckbox];
+            this.listCheckbox = listCheckbox;
             console.log("listCheckbox",this.listCheckbox);
             this.$emit("listIDDelete",this.listCheckbox)
         },
@@ -134,6 +134,8 @@ export default {
             }else{
                 this.isCheckAll[this.pageNumber] = false;
             }
+            console.log("listCheckbox2",this.listCheckbox);
+            this.$emit("listIDDelete",this.listCheckbox)
         },
         /**
          * Lấy ID của nhân viên cần sửa

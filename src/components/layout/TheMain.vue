@@ -92,9 +92,6 @@
                         <button class="btn__paging" v-if="pageNumber < pages.length - 2" @click="selectPage(pageSize,pages.length)"> {{pages[pages.length - 1]}}</button>
 
                         <button class="btn__paging--prev" @click="nextPage(pageSize,pageNumber)" :disabled="isNextPage">Sau</button>
-                        <!-- <button class="btn__paging--prev" @click="prevPage(pageSize,pageNumber)" :disabled="isPrevPage">Trước</button>
-                        <button v-for="n in (totalPage =5)" :key="n" class="btn__paging" :class="{active: isSelectPage[n]}" @click="selectPage(pageSize,n)">{{n}}</button>
-                        <button class="btn__paging--prev" @click="nextPage(pageSize,pageNumber)" :disabled="isNextPage">Sau</button> -->
                     </div>
                     <div class="paging__button"></div>
                     <div class="right__bot"></div>
@@ -195,7 +192,8 @@ export default {
             backToArray: [],
             listID:{
                 EmployeeIDs: []
-            }
+            },
+            typeDelete:'',
         }
     },  
     computed: {
@@ -236,14 +234,9 @@ export default {
             this.isDropdown = !this.isDropdown
         },
         handelDeleteMultiple(){
-            console.log(this.listIDs);
-            const listID = Object.values(this.listIDs)
-            this.listID.EmployeeIDs=listID;
-            console.log(this.listID);
-            EmployeeAction.deleteMultipleEmployee(this.listID)
-            .then(()=>{
-                this.loadDataAgain(this.keyWord,this.pageSize,this.pageNumber) 
-            });
+            this.isShowAlertConfirm = true;
+            this.isConfirm = true;
+            this.typeDelete = "DELETEMULTIPLE"
             this.isDropdown = false;
         },
         /**
@@ -377,6 +370,7 @@ export default {
             this.employeeEdit.typeSubmit = "DELETE"
             this.isShowAlertConfirm = false;
             if(this.isConfirm){
+                if(this.typeDelete == "DELETEONE")
                 EmployeeAction.deleteEmployee(id).then(
                         ()=>{
                         this.loadDataWithPaging(this.keyWord,pageSize,pageNumber)
@@ -385,6 +379,14 @@ export default {
                         }
                     }
                 )
+                if(this.typeDelete == "DELETEMULTIPLE"){
+                    const listID = Object.values(this.listIDs)
+                    this.listID.EmployeeIDs=listID;
+                    EmployeeAction.deleteMultipleEmployee(this.listID)
+                    .then(()=>{
+                        this.loadDataWithPaging(this.keyWord,pageSize,pageNumber)
+                    });
+                }
             }
         },
 
@@ -395,7 +397,8 @@ export default {
         handelClickDeleteEmployee(){
             this.isShowAlertConfirm = true;
             this.show = false;
-            this.isConfirm = true;       
+            this.isConfirm = true;
+            this.typeDelete = "DELETEONE";
         },
 
         // compareValues(key, order = 'asc') {

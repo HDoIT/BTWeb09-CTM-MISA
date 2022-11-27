@@ -168,10 +168,6 @@ import DepartmentAction from '../../action/DepartmentAction.js';
 import AlertWarning from '../base/alert/AlertWarning.vue';
 import moment from 'moment';
 import formatDate from '../../untils/formatDate';
-// const KEY_DOWN = 40;
-// const KEY_UP = 38;
-const ESCAPE = 27;
-// const CHAR_A = 65;
 export default {
     components: { AlertWarning },
     props:{
@@ -259,11 +255,6 @@ export default {
         }
     },
     methods: {
-        onKeydown(e) {
-            if (e.keyCode === ESCAPE) {
-                alert(2)
-            }
-        },
         /**
          * Validate input Mã nhân viên
          * Author: LHDO(19/11/2022)
