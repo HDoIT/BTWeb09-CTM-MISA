@@ -33,5 +33,4 @@ export default {
 <style>
 
 @import url('../../style/layout/SideBar.css');
-@import url('../../style/components/Icon.css');
 </style>

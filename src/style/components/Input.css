@@ -34,12 +34,17 @@ input:focus{
 }
 
 input[type = "checkbox"],input[type = "radio"]{
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 input[type = "date"]{
 	font-family: test fonts;
 	text-transform: uppercase;
 	/* width: 100px !important; */
+}
+
+input[type = "radio"]{
+  accent-color: #2ca01c;
+  cursor: pointer;
 }

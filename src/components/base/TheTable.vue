@@ -5,7 +5,7 @@
                 <th></th>
                 <th Checkbox >
                     <div class="checkbox-rect">
-                        <input type="checkbox" name="checkall" id="checkbox-rect" v-model="selectAll">
+                        <input type="checkbox" name="checkall" id="checkbox-rect" v-model="isCheckAll[pageNumber]" @click="checkAll()">
                         <label for="checkbox-rect"></label>
                     </div>
                 </th>
@@ -26,20 +26,20 @@
         </thead>
         
         <tbody>
-            <tr v-for="(e,index) of listEmployees" :key="index" :class="{rowTable : checkedBg[index]}">
+            <tr v-for="(e,index) in listEmployees" :key="index">
                 <td></td>
                 <td>
                     <div class="loading" v-if="isLoadingTr"></div>
                     <div class="checkbox-rect" v-if="!isLoadingTr">
-                        <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeId" :id="e.EmployeeCode" v-model="listCheckbox" >
-                        <label :for="e.EmployeeCode" @click="changeBackgroundTd(index)"></label>
+                        <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeID" :id="e.EmployeeCode" v-model="listCheckbox[pageNumber]" @change='updateCheckall()'>
+                        <label :for="e.EmployeeCode"></label>
                     </div>
                 </td>
                 <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.EmployeeCode ||"" :"" }}</td>
                 <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.EmployeeName ||"":"" }}</td>
                 <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.GenderName||"":"" }}</td>
                 <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? formatDate(e.DateOfBirth):"" }}</td>
-                <td title="Số chứng minh nhân dân"><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.IdentityNumber||"":"" }}</td>
+                <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.IdentityNumber||"":"" }}</td>
                 <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.JobPositionName||"":"" }}</td>
                 <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.DepartmentName||"":"" }}</td>
                 <td><div class="loading" v-if="isLoadingTr"></div>{{isLoadingTr == false ? e.BankAccountNumber||"":"" }}</td>
@@ -60,10 +60,12 @@
 </template>
 
 <script>
-import DepartmentAction from '@/action/DepartmentAction';
+// import DepartmentAction from '@/action/DepartmentAction';
 // import axios from 'axios';
 // import EmployeeAction from '../../action/EmployeeAction.js';
 import formatDate from '../../untils/formatDate';
+// eslint-disable-next-line no-unused-vars
+import EmployeeAction from '@/action/EmployeeAction';
 
 export default {
     name: 'TheTable',
@@ -77,17 +79,18 @@ export default {
         isLoadingTr: Boolean
     },
     emits:[
-        "handelClickDeleteEmployee",
         "onClickEditEmployee",
         "showContextMenu",
         "topContext",
         "leftContext",
         "employeeId",
         "employeeCode",
-        "showMultipleDelete"
+        "showMultipleDelete",
+        "listIDDelete"
     ],
     data() {
         return {
+            isCheckAll: [],
             posts: [],
             count: '',    
             formatDate,
@@ -97,59 +100,41 @@ export default {
             leftAc:0,
             checkedBg: [],
             listCheckbox:[],
+            listEmp:[],
             isShowMultiple: true,
             departmentName:'',
+            allSelected: false,
+            pageCrr:0,
+            
             // listCheckboxSelected:{}
         }
     },
-    computed:{
-
-        selectAll:{
-            get: function () {
-                return this.listEmployees ? this.listCheckbox.length == this.listEmployees.length : false;
-            },
-            set: function (value) {
-                var listCheckbox = [];
-                if (value) {
-                    this.listEmployees.forEach(function (user) {
-                        listCheckbox.push(user.EmployeeId);
-                    });
-                    for(let i = 0;i<this.pageSize;i++){
-                        this.checkedBg[i] = false;
-                    }
-                }
-                this.listCheckbox= listCheckbox;
-                if(this.listCheckbox.length>2){
-                    this.isShowMultiple = true;
-                }
-                else{
-                    this.isShowMultiple = false;
-                }
-                this.$emit("showMultipleDelete",this.isShowMultiple);
-                
-                for(let i = 0;i<this.pageSize;i++){
-                    this.checkedBg[i] = !this.checkedBg[i];
-                }
-                
-            },
-        }
-    },
     methods: {
+        checkAll(){
+            this.isCheckAll[this.pageNumber] = !this.isCheckAll[this.pageNumber]
 
-        changeBackgroundTd(i){
-            console.log(this.listCheckbox.length);
-            this.checkedBg[i] = !this.checkedBg[i];
-            let count = 2;
-            console.log(this.listCheckbox);
-            if(count>2){
-                this.isShowMultiple = true;
+            const listCheckbox = [];
+            console.log(typeof(listCheckbox));
+            // const listCheckboxOfNumber = []
+            if(this.isCheckAll[this.pageNumber]){ 
+                for (var key in this.listEmployees) {
+                    listCheckbox.push(this.listEmployees[key].EmployeeID);
+                }
             }
-            else{
-                this.isShowMultiple = false;
-            }
-            this.$emit("showMultipleDelete",this.isShowMultiple)
+            this.listCheckbox[this.pageNumber] = [...listCheckbox];
+            console.log("listCheckbox",this.listCheckbox);
+            this.$emit("listIDDelete",this.listCheckbox)
         },
-
+        
+        updateCheckall(){
+            console.log(this.listCheckbox);
+            console.log("a",this.listEmployees.EmployeeID);
+            if(this.listCheckbox.length == this.listEmployees.length){
+                this.isCheckAll[this.pageNumber] = true;
+            }else{
+                this.isCheckAll[this.pageNumber] = false;
+            }
+        },
         /**
          * Lấy ID của nhân viên cần sửa
          * @param employeeID ID của nhân viên
@@ -217,25 +202,8 @@ export default {
             }
 
         },
-
-        DepartmentName(string){
-            DepartmentAction.getDepartmentById(string).then(res=>{
-                this.departmentName = res.data.DepartmentName;
-            });
-            return this.departmentName;
-        }
-
-    },
-    updated() {
-        // console.log(this.pageNumber);
-        this.DepartmentName('142cb08f-7c31-21fa-8e90-67245e8b283e');
     },
     
-    // lấy dữ liệu khi component được tạo thành công
-    created() {
-        
-        // this.getPositionContext()
-    }
 }
 </script>
 
@@ -243,24 +211,5 @@ export default {
 
 @import url('../../style/components/Table.css');
 @import url('../../style/components/Checkbox.css');
-.bgcolor td {
-  background-color: rgb(225, 238, 249);
-}
 
-td .loading{
-    width: 100%;
-    height: 12px;
-    background: linear-gradient(to right, #eee 20%, #ddd 50%, #eee 80%);
-    background-size: 500px 100px;
-    animation-name: moving-gradient;
-    animation-duration: 1s;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
-}
-
-@keyframes moving-gradient {
-    0% { background-position: -250px 0; }
-    100% { background-position: 250px 0; }
-}
 </style>

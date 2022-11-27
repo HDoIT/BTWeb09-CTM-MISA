@@ -1,13 +1,12 @@
-<template > 
-        
-        <div class="context__menu" v-if="show" :style="{'top': top+ 'px','left': left+'px'}" >  
+<template> 
+        <div class="context__menu" v-if="show" :style="{'top': top+ 'px','left': left+'px'}" ref="contextMenu">  
             <ul class="context__menu--item">
                 <li>Nhân bản</li>
                 <li @click="handelClickDeleteEmployee()">Xóa</li>
                 <li>Ngưng sử dụng</li>
             </ul>
         </div>
-      <div class="main" >
+      <div class="main">
         <div class="container__main">
             <div class="header__main">
                 <div class="title__main">
@@ -16,15 +15,18 @@
                 </div>
             </div>
             <div class="container__main--top">
-                <div class="button-left">
+                <div class="button-left" >
                     <div class="delete" v-show="isMultipleDelete">
-                        <div class="btn-delete">Thực hiện xóa hàng loạt</div>
+                        <div class="btn-delete" @click="this.listIDs.length>1 ? showDropdown() : ''">Thực hiện hàng loạt <div class="mi" :class="listIDs.length>1 ? 'mi-sort-down-cbb2-hover' : 'mi-sort-down-cbb2'"></div></div>
+                        <ul class="dropdown" v-if="isDropdown">
+                            <li @click="handelDeleteMultiple()">Xóa</li>
+                        </ul>
                     </div>
                 </div>
                 <div class="button-list">
                     <div class="search">
                         <input type="text" id="input-search" class="input-search" placeholder="Tìm kiếm nhân viên" v-model="keyWord" @keyup.enter="handelSearch()"/>
-                        <div class="mi mi-search"  @click="handelSearch()"></div>
+                        <div class="mi mi-search"></div>
                     </div>
                     <div class="mi mi-reload" @click="clickReload()"></div>
                 </div>
@@ -50,6 +52,7 @@
                     :isCheck="isCheck"
                     :listDepartment="listDepartment"
                     :isLoadingTr="isLoadingTr"
+                    @list-i-d-delete="c=>listIDs  = c"
                 >
                 </the-table>
                 <!-- <div class="margin__right"> -->
@@ -68,8 +71,8 @@
                     <div class="paging__combobox">
                         <div class="combobox">
                             <input type="text" class="input combobox__input input__paging" :value="pageSize + ' bản ghi trên 1 trang'" disabled>
-                            <button class="combobox__button cbb__paging mi mi-sort-down-cbb" @click="handelClickToggleCombobox()"></button>
-                            <div class="combobox__data combobox__paging" v-bind:class="{active: isActiveCombobox}">
+                            <button class="combobox__button cbb__paging mi mi-sort-down-cbb" :class="{active: isActiveCombobox}" @click="handelClickToggleCombobox()"></button>
+                            <div class="combobox__data combobox__paging" :class="{active: isActiveCombobox}">
                                 <div class="data-item" :class="{active: isSelectNumberOfPage[index]}" v-for="(item, index) in listNumberOfPage" :key="index" @click="handelClickSelectPageSize(keyWord,item.value,index)">
                                     <label for="data-item-1" >{{item.value}} bản ghi trên 1 trang</label>
                                 </div>
@@ -152,6 +155,8 @@ export default {
     // formatDate:[formatDate],
     data() {
         return {
+            isDropdown:false,
+            listIDs:[],
             isLoadingTr: false,
             isLoading: false,
             employeeCode:'',
@@ -160,10 +165,7 @@ export default {
             isConfirm: false,
             posts: [],
             listDepartment:[],
-            error: [],
             count: 0, 
-            isActiveDialog: false,
-            isActiveDialogUpdate: false,
             isActiveCombobox: false,
             pageSize: 10,
             pageNumber: 1,
@@ -174,8 +176,6 @@ export default {
             isSelectNumberOfPage: [],
             isNextPage: false,
             isPrevPage: false,
-            idEmployee: '',
-            showContextMenu: false,
             top: 0,
             left: 0,
             show: false,
@@ -193,6 +193,9 @@ export default {
             listCheckbox: [],
             pages:[],
             backToArray: [],
+            listID:{
+                EmployeeIDs: []
+            }
         }
     },  
     computed: {
@@ -229,7 +232,20 @@ export default {
         
     },
     methods:{
-        
+        showDropdown(){
+            this.isDropdown = !this.isDropdown
+        },
+        handelDeleteMultiple(){
+            console.log(this.listIDs);
+            const listID = Object.values(this.listIDs)
+            this.listID.EmployeeIDs=listID;
+            console.log(this.listID);
+            EmployeeAction.deleteMultipleEmployee(this.listID)
+            .then(()=>{
+                this.loadDataAgain(this.keyWord,this.pageSize,this.pageNumber) 
+            });
+            this.isDropdown = false;
+        },
         /**
          * Đóng form thông tin nhân viên
          * Author: LHDO(19/11/2022)
@@ -534,8 +550,8 @@ export default {
         this.loadDataWithPaging(this.keyWord,this.pageSize,this.pageNumber);
         this.isSelectPage[1] = true;
         this.isSelectNumberOfPage[0]= true;
-        
     },
+
 }
 </script>
 
@@ -544,9 +560,4 @@ export default {
 @import url('../../style/layout/MainApp.css');
 @import url('../../style/components/Table.css');
 
-.mi-warning{
-    background-position: -598px -463px;
-	width: 50px;
-	height: 37px;
-}
 </style>

@@ -1,15 +1,32 @@
-.loadingImg{
-    width: 20px;
-    height: 20px;
-}
-
-.loading{
+.loading {
     position: fixed;
-    width: 100%;
-    height: 100vh;
-    z-index: 20000;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9999;
+    background:rgba(0,0,0,.1);
+    /* background: transparent; */
     display: flex;
     justify-content: center;
     align-items: center;
-    
+}
+  
+.loading .icon-loading {
+    background: url(./assets/loading.svg) no-repeat center;
+    height: 40px;
+    width: 40px;
+    animation: loading linear 0.8s infinite;
+}
+  
+@keyframes loading {
+    0% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(180deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
 }

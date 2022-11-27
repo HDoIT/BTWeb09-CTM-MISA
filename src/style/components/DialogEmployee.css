@@ -20,20 +20,23 @@
     position: relative;
 }
 
-#manv:hover + .field-error{
-    transition: .3s;
+#manv:hover + .field-error,#manv+.field-error:hover{
+    transition: .5s;
+    transition-delay: .1s;
     transform: scale(1);
     color: #fff;
     padding: 4px;
     background-color: black;
-    width: 160px;
+    width: 180px;
     display: flex;
     right: -5%;
     justify-content: center;
+    
 }
 
-#tennv:hover + .field-error{
-    transition: .3s;
+#tennv:hover + .field-error,#tennv + .field-error:hover{
+    transition: .5s;
+    transition-delay: .1s;
     transform: scale(1);
     color: #fff;
     background-color: black;
@@ -41,8 +44,9 @@
     padding: 4px;
 }
 
-.input__employee:hover ~ .field-error{
-    transition: .3s;
+.input__employee:hover ~ .field-error,.input__employee ~ .field-error:hover{
+    transition: .5s;
+    transition-delay: .1s;
     transform: scale(1);
     color: #fff;
     padding: 4px;
@@ -56,9 +60,8 @@
     position: absolute;
     bottom: -20px;
     padding: 2px;
-    border-radius: 2px;
-    background-color: burlywood;
-    z-index: 1;
+    z-index: 1000;
+    cursor: grab;
 }
 
 /* .field-error::before{
@@ -196,4 +199,17 @@ hr{
 }
 .cbb__form{
     background-color: transparent;
+    border-top-left-radius: 0px !important;
+    border-bottom-left-radius: 0px !important;
 }
+
+.cbb__form:hover{
+    background: #dbdfe6;
+}
+.cbb__form>div{
+    transition: all .2s linear;
+}
+.cbb__form.active>div{
+    transform: rotate(180deg);
+}
+

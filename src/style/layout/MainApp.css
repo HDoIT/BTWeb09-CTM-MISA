@@ -1,8 +1,6 @@
 .header__main{
     position: sticky !important;
     left: 0;
-    /* z-index: 20; */
-
 }
 
 .title__main{
@@ -154,12 +152,6 @@
     align-items: center;
     z-index: 1000;
     transition: .05s all linear;
-    /* transform: scale(0); */
-    /* display: none; */
-}
-
-.no-data{
-   
 }
 
 .bottom-2{
@@ -167,20 +159,16 @@
     height: 200px;
 }
 
-/*  */
-
-
 .paging__combobox{
     height: 56px;
     display: flex;
     align-items: center;
 }
-.v-pagination__list{
 
-}
 .v-pagination__item{
     height: 10px !important;
 }
+
 .v-btn{
     height: 10px !important;
     color: white !important;
@@ -259,4 +247,38 @@ ul{
 
 .custom{
     height: 100%;
+}
+
+
+.button-left{
+    position: relative;
+    z-index: 1;
+}
+.dropdown{
+    background-color: white;
+    width: 104px;
+    border-radius: 2px;
+    border: 1px solid #babec5;
+    padding: 2px 1px;
+    position: absolute !important;;
+    z-index: 999999 !important;
+    right: 0;
+}
+
+.dropdown li{
+    width: 100px;
+    height: 24px;
+    padding: 2px 10px;
+}
+
+.dropdown li:hover{
+    background: #b8bcc3;
+    cursor: pointer;
+}
+
+.mi-sort-down-cbb{
+    transition: all .2s linear;
+}
+.mi-sort-down-cbb.active{
+    transform: rotate(180deg);
 }
