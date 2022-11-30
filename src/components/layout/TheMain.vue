@@ -1,5 +1,5 @@
 <template> 
-        <div class="context__menu" v-if="show" :style="{'top': top+ 'px','left': left+'px'}" ref="contextMenu">  
+        <div class="context__menu" v-if="show" :style="{'top': top+ 'px','left': left+'px'}" ref="contextMenu" v-click-outside="onClickOutside">  
             <ul class="context__menu--item">
                 <li>Nhân bản</li>
                 <li @click="handelClickDeleteEmployee()">Xóa</li>
@@ -7,21 +7,23 @@
             </ul>
         </div>
       <div class="main">
-        <div class="container__main">
+        <!-- <div class="container__main"> -->
             <div class="header__main">
                 <div class="title__main">
                     <p>Nhân viên</p>
                     <button class="btn btn__add" @click="handelClickOpenDialog(pageSize,pageNumber)">Thêm mới nhân viên</button>
                 </div>
             </div>
-            <div class="container__main--top">
+            <div class="container__main">
+                <div class="container__main--top">
                 <div class="button-left" >
                     <div class="delete" v-show="isMultipleDelete">
-                        <div class="btn-delete" @click="this.listIDs.length>1 ? showDropdown() : ''">Thực hiện hàng loạt <div class="mi" :class="listIDs.length>1 ? 'mi-sort-down-cbb2-hover' : 'mi-sort-down-cbb2'"></div></div>
+                        <div class="btn-delete" v-click-outside="clickDropdownOutside" @click="this.listIDs.length>1 ? showDropdown() : ''">Thực hiện hàng loạt <div class="mi" :class="listIDs.length>1 ? 'mi-sort-down-cbb2-hover' : 'mi-sort-down-cbb2'"></div></div>
                         <ul class="dropdown" v-if="isDropdown">
                             <li @click="handelDeleteMultiple()">Xóa</li>
                         </ul>
                     </div>
+                    <!-- <p>Đã chọn {{listIDs.length}}</p> -->
                 </div>
                 <div class="button-list">
                     <div class="search">
@@ -30,7 +32,6 @@
                     </div>
                     <div class="mi mi-reload" @click="clickReload()"></div>
                 </div>
-                <div class="right"></div>
             </div>
             <div class="tbl-employee">
                 <!-- <the-loader></the-loader> -->
@@ -55,23 +56,21 @@
                     @list-i-d-delete="c=>listIDs  = c"
                 >
                 </the-table>
-                <!-- <div class="margin__right"> -->
-                    
-            </div>
-            <div class="container__main--bottom bottom-2" v-if="emplNull">
+                <div class="container__main--bottom bottom-2" v-if="emplNull">
                     <div class="no-data">
                         <div class="mi mi-null"></div>
                         <p>Không có dữ liệu</p>
                     </div>
                     <div class="right__bot" style="height:200px"></div>
-            </div>
-            <div class="container__main--bottom" v-if="bottomNull">
+                </div>
+                <!-- <div class="margin__right"> -->
+                <div class="container__main--bottom" v-if="bottomNull">
                 <div class="total">Tổng số: <b>{{count}}</b> bản ghi</div>
                 <div class="paging">
                     <div class="paging__combobox">
                         <div class="combobox">
                             <input type="text" class="input combobox__input input__paging" :value="pageSize + ' bản ghi trên 1 trang'" disabled>
-                            <button class="combobox__button cbb__paging mi mi-sort-down-cbb" :class="{active: isActiveCombobox}" @click="handelClickToggleCombobox()"></button>
+                            <button class="combobox__button cbb__paging mi mi-sort-down-cbb"  v-click-outside="onClickOutsidePage" :class="{active: isActiveCombobox}" @click="handelClickToggleCombobox()"></button>
                             <div class="combobox__data combobox__paging" :class="{active: isActiveCombobox}">
                                 <div class="data-item" :class="{active: isSelectNumberOfPage[index]}" v-for="(item, index) in listNumberOfPage" :key="index" @click="handelClickSelectPageSize(keyWord,item.value,index)">
                                     <label for="data-item-1" >{{item.value}} bản ghi trên 1 trang</label>
@@ -93,11 +92,13 @@
 
                         <button class="btn__paging--prev" @click="nextPage(pageSize,pageNumber)" :disabled="isNextPage">Sau</button>
                     </div>
-                    <div class="paging__button"></div>
-                    <div class="right__bot"></div>
                 </div>
+            </div>    
             </div>
+            
         </div>
+
+        <!-- </div> -->
     </div>
     <the-dialog-form v-if="employeeEdit.isShowFormEmployeeEdit"
         :loadData="loadDataWithPaging"
@@ -109,6 +110,8 @@
         :employeeId="employeeEdit.employeeID"
         :handelClickCloseDialog="closeForm"
         :handelClickOpenDialog="openForm"
+        @show-toast-message="c=>showToast = c"
+        @txt-toast-msg="c=>txtToastMsg = c"
     >
     </the-dialog-form>
     <div class="alert__warning" v-if="isShowAlertConfirm">
@@ -116,7 +119,8 @@
             <div class="alert__form--title">
                 <div class="mi mi-warning"></div>
                 <div class="text-error">
-                    Bạn có chắc chắn muốn xóa Nhân viên &lt;{{employeeCode}}> không?
+                    {{typeDelete=="DELETEONE" ? 'Bạn có chắc chắn muốn xóa Nhân viên &lt;'+employeeCode+'> không?':
+                    `Bạn có chắc chắn muốn xóa ${listIDs.length} nhân viên đã chọn không?` }}
                 </div>
             </div>
             <hr>
@@ -126,13 +130,24 @@
             </div>
         </div>
     </div>
+    <div class="toast__messenger" :class="{active: showToast}" v-if="showToast">
+        <div class="left-toast">
+            <div class="mi mi-done"></div>
+            <b>Thành công!</b>
+            <p>{{txtToastMsg}}</p>
+        </div>
+        <div class="right-toast">
+            <a href="">{{rightTost}}</a>
+            <div class="mi mi-toast-close" @click="showToast = false"></div>
+        </div>
+    </div>
 
 </template>
 
 <script>
 import TheTable from '../base/TheTable.vue';
 import TheDialogForm from '../base/TheDialogForm.vue';
-import {listNumberOfPage} from '../../i18ncomponent/i18n'
+import {listNumberOfPage, listToastMessage, typeButton} from '../../i18ncomponent/i18n'
 import EmployeeAction from '../../action/EmployeeAction.js';
 import formatDate from '../../untils/formatDate';
 import DepartmentAction from '@/action/DepartmentAction';
@@ -152,6 +167,9 @@ export default {
     // formatDate:[formatDate],
     data() {
         return {
+            rightTost:'',
+            txtToastMsg:'',
+            showToast:false,
             isDropdown:false,
             listIDs:[],
             isLoadingTr: false,
@@ -197,13 +215,8 @@ export default {
         }
     },  
     computed: {
-        style(){
-            return {
-                top: this.top + 'px',
-                left: this.left + 'px',
-            }
-        },
-        
+
+        //Xử lý phân trang
         displayedPages() {
             
             if(this.pages.length>5){
@@ -230,13 +243,31 @@ export default {
         
     },
     methods:{
+        //Xử lý sự kiện ẩn dropdown xóa nhiều khi click outside
+        clickDropdownOutside(){
+            this.isDropdown = false;
+        },
+
+        //Xử lý sự kiện ẩn context menu khi click outside
+        onClickOutside(){
+            this.show = false;
+        },
+
+        //Xử lý sự kiện ẩn combobox phân trang khi click outside
+        onClickOutsidePage(){
+            this.isActiveCombobox = false;
+        },
+        
+        //Xử lý sự kiện hiển thị dropdown xóa nhiều
         showDropdown(){
             this.isDropdown = !this.isDropdown
         },
+
+        //Xử lý sự kiện hiển thị thông báo xác nhận xóa nhiều nhân viên được chọn
         handelDeleteMultiple(){
             this.isShowAlertConfirm = true;
             this.isConfirm = true;
-            this.typeDelete = "DELETEMULTIPLE"
+            this.typeDelete = typeButton.deleteMultiple
             this.isDropdown = false;
         },
         /**
@@ -266,14 +297,9 @@ export default {
             this.employeeEdit.isShowFormEmployeeEdit = true;
             this.pageSize = pageSize;
             this.pageNumber = pageNumber;
-            this.employeeEdit.typeSubmit = "ADD";
+            this.employeeEdit.typeSubmit = typeButton.add;
             this.employeeEdit.employeeID = "";
         },
-
-
-        // handelClickUpdate(){
-        //     this.isActiveDialogUpdate = true;
-        // },
 
         /**
          * Ẩn hiện combobox
@@ -297,7 +323,7 @@ export default {
             this.isActiveCombobox = false
             this.isSelectPage[1] = true
             this.backToArray=[];
-            this.loadDataAgain(keyword,this.pageSize,1) 
+            this.loadData(keyword,this.pageSize,1) 
         },
 
         /**
@@ -311,21 +337,10 @@ export default {
             this.isSelectNumberOfPage[idx] = true;
         },
 
-        /**
-         * Lấy giá trị nhập vào trong input tìm kiếm
-         * Author: LHDO(19/11/2022)
-         */
-        // hanldeChangeInput(e) {
-        //         if(e.target.value=='')
-        //         {
-        //                 this.loadDataWithPaging(e.target.value,this.pageSize,1)
-        //         }
-        // },
-
+        //Xử lý sự kiện tìm kiếm nhân viên
         handelSearch(){
-            console.log(this.keyWord);
             this.backToArray=[];
-            this.loadDataAgain(this.keyWord,this.pageSize,1) 
+            this.loadData(this.keyWord,this.pageSize,1) 
         },
 
         /**
@@ -337,49 +352,39 @@ export default {
             this.pageNumber = 1;
             this.keyWord = "";
             this.posts=[];
-            this.loadDataAgain(this.keyWord,this.pageSize,this.pageNumber) 
+            this.loadData(this.keyWord,this.pageSize,this.pageNumber) 
         },
 
-        /**
-         * Lấy giá trị nhập vào trong input tìm kiếm
-         * Author: LHDO(19/11/2022)
-        //  */
-        // handelClickUpdateEmployee(id,pageSize,pageNumber){
-        //     // this.isActiveDialogUpdate = true;
-        //     this.isActiveDialog = true;
-        //     this.idEmployee = id;
-        //     console.log(id,this.idEmployee);
-        //     this.pageSize = pageSize;
-        //     this.pageNumber = pageNumber;
-        //     this.typeForm = "EDIT";
-        // },
-
-        getAllEmp(){
-            EmployeeAction.getAll().then((res)=>{
-                console.log(res.data);
-            })
-        },
-
+        // Xử lý sự kiện Hủy xóa nhân viên
         handelCancelDelete(){
             this.isShowAlertConfirm = false;
         },
 
+        //Xử lý sự kiện xác nhận xóa nhân viên
         handelConfirmDelete(id,pageSize,pageNumber){
-            // this.isLoading = true;
-            // this.$emit("isLoading", this.isLoading);
-            this.employeeEdit.typeSubmit = "DELETE"
+            this.employeeEdit.typeSubmit = typeButton.delete
             this.isShowAlertConfirm = false;
+            this.backToArray=[];
             if(this.isConfirm){
-                if(this.typeDelete == "DELETEONE")
+                if(this.typeDelete == typeButton.deleteOneRecord)
                 EmployeeAction.deleteEmployee(id).then(
                         ()=>{
-                        this.loadDataWithPaging(this.keyWord,pageSize,pageNumber)
-                        if(this.posts.length ==1){
-                            // alert(2);
-                        }
+                            if(this.posts.length == 1){
+                                if(pageNumber > 1){
+                                    this.loadDataWithPaging(this.keyWord,pageSize,pageNumber-1)
+                                }
+                                else{
+                                    this.loadDataWithPaging(this.keyWord,pageSize,1)
+                                }
+                            }
+                            else{
+                                this.loadDataWithPaging(this.keyWord,pageSize,pageNumber)
+                            }
+                            this.showToast= true
+                            this.txtToastMsg = listToastMessage.messageDelete
                     }
                 )
-                if(this.typeDelete == "DELETEMULTIPLE"){
+                if(this.typeDelete == typeButton.deleteMultiple){
                     const listID = Object.values(this.listIDs)
                     this.listID.EmployeeIDs=listID;
                     EmployeeAction.deleteMultipleEmployee(this.listID)
@@ -398,39 +403,15 @@ export default {
             this.isShowAlertConfirm = true;
             this.show = false;
             this.isConfirm = true;
-            this.typeDelete = "DELETEONE";
+            this.typeDelete = typeButton.deleteOneRecord;
         },
 
-        // compareValues(key, order = 'asc') {
-        //     return function(a, b) {
-        //         // eslint-disable-next-line no-prototype-builtins
-        //         if(!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
-        //         // nếu không tồn tại
-        //             return 0;
-        //         }
-
-        //         const varA = (typeof a[key] === 'string') ?
-        //         a[key].toUpperCase() : a[key];
-        //         const varB = (typeof b[key] === 'string') ?
-        //         b[key].toUpperCase() : b[key];
-
-        //         let comparison = 0;
-        //         if (varA > varB) {
-        //         comparison = 1;
-        //         } else if (varA < varB) {
-        //         comparison = -1;
-        //         }
-        //         return (
-        //         (order == 'desc') ? (comparison * -1) : comparison
-        //         );
-        //     };
-        // },
         /**
          * Load dữ liệu có phân trang, tìm kiếm
          * Author: LHDO(19/11/2022)
         */
         loadDataWithPaging(keyWord,pageSize,pageNumber){
-            if(this.employeeEdit.typeSubmit == "EDIT" || this.employeeEdit.typeSubmit == "DELETE" || this.employeeEdit.typeSubmit == "ADD"){
+            if(this.employeeEdit.typeSubmit == typeButton.edit || this.employeeEdit.typeSubmit == typeButton.delete || this.employeeEdit.typeSubmit == typeButton.add){
                 this.isLoading = true;
                 this.$emit("isLoading", this.isLoading);
             }
@@ -444,12 +425,14 @@ export default {
                     for (let i = 1; i <= this.totalPage; i++) {
                        this.backToArray.push(i)
                     }
+                    
                     const uniqueSet = new Set(this.backToArray)
                     this.pages = [...uniqueSet];
                     this.count = response.data.totalCount
                     this.$emit('countEmp', this.count)
                     this.pageSize = pageSize
                     this.pageNumber = pageNumber
+
                     if (pageNumber >= this.totalPage) {
                         this.isNextPage = true;
                     }
@@ -462,6 +445,7 @@ export default {
                     else{
                         this.isPrevPage = false;
                     }
+                    //Xử lý hiển thị khi không có dữ liệu
                     this.emplNull= false,
                     this.bottomNull= true
                     // this.setPages();
@@ -471,15 +455,14 @@ export default {
                     }
 
                 })
-                .catch((e) => {
+                .catch(() => {
                     this.posts = [];
-                    console.log(e, "Không tìm thấy nhân viên");
                     this.emplNull=true
                     this.bottomNull = false
                 })
                 .finally(()=>
                 {   
-                    if(this.employeeEdit.typeSubmit == "EDIT" || this.employeeEdit.typeSubmit == "DELETE" || this.employeeEdit.typeSubmit == "ADD"){
+                    if(this.employeeEdit.typeSubmit == typeButton.edit || this.employeeEdit.typeSubmit == typeButton.delete|| this.employeeEdit.typeSubmit == typeButton.add){
                         setTimeout(() => {
                             this.isLoading = false;
                             this.$emit("isLoading", this.isLoading);
@@ -495,14 +478,16 @@ export default {
                 )
         },
 
+        //Load danh sách đơn vị
         loadDepartment(){
             DepartmentAction.getDepartment().then(res=>{
                 this.listDepartment = [...res.data]
             });
         },
 
-        loadDataAgain(keySearch,pageSize,pageNumber){
-            this.employeeEdit.typeSubmit = "LOAD";
+        //Hàm load dữ liệu có truyền loại loading
+        loadData(keySearch,pageSize,pageNumber){
+            this.employeeEdit.typeSubmit = typeButton.load;
             this.loadDataWithPaging(keySearch,pageSize,pageNumber);
         },
         /**
@@ -514,7 +499,7 @@ export default {
                 this.isSelectPage[i] = false
             }
             this.isSelectPage[pageNumber] = true
-            this.loadDataAgain(this.keyWord,pageSize,pageNumber)
+            this.loadData(this.keyWord,pageSize,pageNumber)
         },
 
         /**
@@ -524,7 +509,7 @@ export default {
         nextPage(pageSize,pageNumber){
             pageNumber = this.pageNumber + 1;
             this.selectPage(pageSize,pageNumber);
-            this.loadDataAgain(this.keyWord,pageSize,pageNumber)
+            this.loadData(this.keyWord,pageSize,pageNumber)
             this.isCheck =false
         },
         
@@ -535,7 +520,7 @@ export default {
         prevPage(pageSize,pageNumber){
             pageNumber = this.pageNumber - 1;
             this.selectPage(pageSize,pageNumber);
-            this.loadDataAgain(this.keyWord,pageSize,pageNumber)
+            this.loadData(this.keyWord,pageSize,pageNumber)
         },
 
         /**
@@ -545,11 +530,22 @@ export default {
         onClickEditEmployee(employeeID) {
             const { employeeEdit } = this;
             employeeEdit.employeeID = employeeID;
-            employeeEdit.typeSubmit = "EDIT";
+            employeeEdit.typeSubmit = typeButton.edit;
             employeeEdit.isShowFormEmployeeEdit = true;
         },
     },
+    watch: {
+        //Tắt toast message sau 4s hiển thị
+        showToast(){
+            if(this.showToast){
+                setTimeout(() => {
+                    this.showToast = false;
+                }, 4000);
+            }
+        }
+    },
     created() {
+
         this.loadDataWithPaging(this.keyWord,this.pageSize,this.pageNumber);
         this.isSelectPage[1] = true;
         this.isSelectNumberOfPage[0]= true;

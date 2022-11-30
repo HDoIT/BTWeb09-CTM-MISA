@@ -38,6 +38,10 @@ export default {
     props: ["label"],
     emits:["isActiveBtnHeader"],
     methods:{
+
+        /**
+         * Xử lý sự kiện thu gọn và mở rộng sidebar
+         */
         handelClickExpandCollapseSidebar(){
             this.isActiveSidebar = !this.isActiveSidebar;
             this.$emit("isActiveBtnHeader", this.isActiveSidebar)

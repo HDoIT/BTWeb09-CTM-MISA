@@ -5,13 +5,13 @@ th,td{
     border-left: none;
 }
 
-tr>:first-child{
+/* tr>:first-child{
     background-color: #fff;
     border: none;
     min-width: 24px;
     position: sticky;
     left: 0;
-}
+} */
 
 
 table{
@@ -19,33 +19,43 @@ table{
     border: none;
     border-collapse: separate;
     border-spacing: 0;
-    min-width: calc(100% + 360px);
-    /* padding-bottom: ; */
+    /* min-width: calc(100% + 360px); */
+    /* margin-left: 24px;  */
+    height: 100%;
 }
 
 tr{
-    height: 48px;
+    height: 44px;
 }
 
-tr>:nth-child(5){
+tr>:nth-child(4){
     min-width: 100px;
 }
 
-
-tr>:nth-child(3),
-tr>:nth-child(4),
-tr>:nth-child(7){
+tr>:nth-child(2),
+tr>:nth-child(6){
     min-width: 180px;
 }
+tr>:nth-child(3){
+    min-width: 300px;
+}
+tr>:nth-child(7){
+    min-width: 170px;
+}
 
-tr>:nth-child(8),
-tr>:nth-child(9){
+tr>:nth-child(8){
     min-width: 230px;
 }
 
-tr>:nth-child(10),
-tr>:nth-child(11){
+tr>:nth-child(9){
     min-width: 150px;
+}
+tr>:nth-child(10){
+    min-width: 320px;
+}
+
+tr>:nth-child(11){
+    min-width: 250px;
 }
 
 thead>tr{
@@ -58,45 +68,29 @@ thead>tr{
     z-index: 2;
 }
 
-thead>tr>:nth-child(2),thead>tr>:nth-child(13){
+thead>tr>:nth-child(1),thead>tr>:nth-child(12){
     background-color: var(--thtableColor) !important;
 }
 
-table tr>:nth-child(2){
+table tr>:nth-child(1){
     text-align: center;
     padding: 10px;
     position: sticky;
-    left: 24px;
+    left: 0px;
     z-index: 1;
     background-color: #fff;
     border-left: none;
 }
 
-table tr>:nth-child(6){
+table tr>:nth-child(5){
     text-align: center;
-    min-width: 200px;
+    min-width: 150px;
 }
 
-table tr>:nth-child(14){
-    background-color: #fff;
-    border: none;
-    position: sticky;
-    right: 30px;
-    min-width: 30px;
-}
-
-table tr>:last-child{
-    background-color: var(--mainColor);
-    border: none;
-    position: sticky;
-    right: 0;
-    min-width: 30px;
-}
-
-table tr>:nth-child(13){
+table tr>:nth-child(12){
     min-width: 130px;
     position: sticky;
-    right: 60px;
+    right: 0px;
     text-align: center;
     background-color: #fff;
     z-index: 1;
@@ -123,17 +117,26 @@ tbody>tr{
 }
 
 tbody tr:hover,
-tbody tr:hover>:nth-child(2),
-tbody tr:hover>:nth-child(13){
-    background-color: rgb(225, 238, 249);
+tbody tr:hover>:nth-child(1),
+tbody tr:hover>:nth-child(12){
+    background-color: #F2F2F2
 }
 
 .rowTable,
-.rowTable>:nth-child(2),
-.rowTable>:nth-child(13){
-    background-color: rgb(206, 232, 254);
+.rowTable
+
+tr.active>:nth-child(1),
+tr.active>:nth-child(12){
+    background-color: #e4ffde;
 }
 
+tr.active>:nth-child(1){
+    background-color: #e4ffde;
+}
+
+tr.active{
+    background-color: #e4ffde;
+}
 
 td .loading{
     width: 100%;

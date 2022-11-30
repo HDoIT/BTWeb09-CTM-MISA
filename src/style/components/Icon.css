@@ -216,3 +216,15 @@
 	width: 50px;
 	height: 37px;
 }
+
+.mi-done{
+    background-position: -848px -312px;
+	width: 16px;
+	height: 16px;
+}
+
+.mi-toast-close{
+    background-position: -84px -316px;
+	width: 8px;
+	height: 8px;
+}

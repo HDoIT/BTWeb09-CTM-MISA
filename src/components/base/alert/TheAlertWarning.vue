@@ -8,10 +8,10 @@
             </div>
             <hr>
             <div class="alert__form--bottom" :class="{r: isAlertWarning, m: isAlertNull, 'flex-between': isQuestion}">
-                <div class="btn btn__close--warning btn__white" v-if="isQuestion" @click="closeAlert()">Hủy</div>
+                <div class="btn btn__close--warning btn__white" v-if="isQuestion" @click="closeAlert()" ref="cancel" tabindex="9">Hủy</div>
                 <div class="save">
-                    <div class="btn btn__close--warning btn__white" v-if="isQuestion" @click="closeForm()">Không</div>
-                    <div class="btn btn__close--warning" @click="isQuestion ? saveUpdate() : closeAlert()">{{isQuestion ? 'Có' : 'Đồng ý'}}</div>     
+                    <div class="btn btn__close--warning btn__white" v-if="isQuestion" @click="closeForm()" tabindex="10">Không</div>
+                    <div class="btn btn__close--warning" @click="isQuestion ? saveUpdate() : closeAlert()" @keydown="focusCancel" tabindex="11">{{isQuestion ? 'Có' : 'Đồng ý'}}</div>     
                 </div>
             </div>
         </div>
@@ -21,6 +21,9 @@
 export default {
     emits:["showAlert"],
     props:{
+        refTxt:{
+            type: String
+        },
         isAlertNull: {
             type: Boolean,
             default: false
@@ -49,8 +52,13 @@ export default {
         closeAlert(){
             this.isShowAlert = false;
             this.$emit("showAlert",this.isShowAlert);
+        },
+        focusCancel(){
+            if(event.which == 9){
+                this.$refs.cancel.focus();
+            }
         }
-    },
+    }
 }
 </script>
 

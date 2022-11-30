@@ -18,7 +18,6 @@
             <li><div class="mi mi-icon-budget"></div> <span class="tooltip">Ngân sách</span></li>
             <li><div class="mi mi-icon-report"></div> <span class="tooltip">Báo cáo</span></li>
             <li><div class="mi mi-icon-analysis"></div> <span class="tooltip">Phân tích tài chính</span></li>
-            <li></li>
         </ul>
 
     </div>

@@ -5,22 +5,18 @@
   <div class="loading-container" v-if="isLoading">
     <div class="icon-loading"></div>
   </div>
-  <!-- <dialog-employee></dialog-employee> -->
 </template>
 
 <script>
-// import DialogEmployee from './components/DialogEmployee.vue'
 import TheHeader from './components/layout/TheHeader.vue'
 import TheMain from './components/layout/TheMain.vue'
 import SideBar from './components/layout/SideBar.vue'
 export default {
   name: 'App',
   components: {
-    // HelloWorld
     TheHeader,
     SideBar,
     TheMain,
-    // DialogEmployee
   },
   data() {
     return{
@@ -48,7 +44,7 @@ export default {
     --sidebarColor: #041434;
     --sidebarFirstColor: #A7C4FF16;
     --sidebarHoverColor: #27395E54;
-    --thtableColor: #e5e8ec;
+    --thtableColor: #EEEEEE;
     --rowtableHoverColor: #F8F8F8;
     --cbbHoverColor: rgba(80,184,60,0.1);
     --tableColor: #c7c7c7;
@@ -85,6 +81,8 @@ a{
 .main{
     width: calc(100% - 200px);
     height: calc(100vh - 56px);
+    top: 56px;
+    left: 200px;
     background-color: var(--mainColor);
 }
 

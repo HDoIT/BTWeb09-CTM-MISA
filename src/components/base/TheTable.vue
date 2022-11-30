@@ -2,36 +2,24 @@
     <table>
         <thead>
             <tr>
-                <th></th>
-                <th Checkbox >
+                <!-- <th></th> -->
+                <th>
                     <div class="checkbox-rect">
                         <input type="checkbox" name="checkall" id="checkbox-rect" v-model="isCheckAll[pageNumber]" @click="checkAll()">
                         <label for="checkbox-rect"></label>
                     </div>
                 </th>
-                <th propName="EmployeeCode">Mã nhân viên</th>
-                <th propName="EmployeeName">Tên nhân viên</th>
-                <th propName="GenderName">Giới tính</th>
-                <th propName="DateOfBirth">Ngày sinh</th>
-                <th propName="IdentityNumber" title="Số chứng minh nhân dân">Số CMND</th>
-                <th propName="PositionName" >Chức danh</th>
-                <th propName="DepartmentName" >Tên đơn vị</th>
-                <th propName="BankAccountNumber" >Số tài khoản</th>
-                <th propName="BankName" >Tên ngân hàng</th>
-                <th propName="BankBranchName" >Chi nhánh ngân hàng</th>
-                <th Action>Chức năng</th>
-                <th ></th>
-                <th ></th>
+                <th v-for="(e,index) in listThTableEmployee" :key="index" :title=e.title >{{e.nameTh}}</th>
+                <th>Chức năng</th>
             </tr>
         </thead>
         
         <tbody>
-            <tr v-for="(e,index) in listEmployees" :key="index">
-                <td></td>
+            <tr v-for="(e,index) in listEmployees" :key="index" :class="{active: isActiveRow[index]}">
                 <td>
                     <div class="loading" v-if="isLoadingTr"></div>
                     <div class="checkbox-rect" v-if="!isLoadingTr">
-                        <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeID" :id="e.EmployeeCode" v-model="listCheckbox" @change='updateCheckall()'>
+                        <input type="checkbox" name="checkb" class="checkb" :value="e.EmployeeID" :id="e.EmployeeCode" v-model="listCheckbox" @change='updateCheckall(index)'>
                         <label :for="e.EmployeeCode"></label>
                     </div>
                 </td>
@@ -52,20 +40,14 @@
                         <div class="mi mi-sort-down action_btn" :class="{active: showContextMenu2[index]}" @click="getPositionContext($event,e.EmployeeID,e.EmployeeCode,index)"></div>
                     </span>
                 </td>
-                <td></td>
-                <td></td>
             </tr>
         </tbody>
     </table>
 </template>
 
 <script>
-// import DepartmentAction from '@/action/DepartmentAction';
-// import axios from 'axios';
-// import EmployeeAction from '../../action/EmployeeAction.js';
 import formatDate from '../../untils/formatDate';
-// eslint-disable-next-line no-unused-vars
-import EmployeeAction from '@/action/EmployeeAction';
+import {listThTableEmployee} from '../../i18ncomponent/i18n'
 
 export default {
     name: 'TheTable',
@@ -91,59 +73,56 @@ export default {
     data() {
         return {
             isCheckAll: [],
-            posts: [],
-            count: '',    
             formatDate,
+            listThTableEmployee,
             showContextMenu: false,
             showContextMenu2: [],
             topAc: 0,
             leftAc:0,
-            checkedBg: [],
             listCheckbox:[],
             listEmp:[],
-            isShowMultiple: true,
-            departmentName:'',
-            allSelected: false,
-            pageCrr:0,
-            
-            // listCheckboxSelected:{}
+            isActiveRow:[]
         }
     },
     methods: {
+        //Xử lý sự kiện check all
         checkAll(){
             this.isCheckAll[this.pageNumber] = !this.isCheckAll[this.pageNumber]
 
             const listCheckbox = [];
-            console.log(typeof(listCheckbox));
-            // const listCheckboxOfNumber = []
             if(this.isCheckAll[this.pageNumber]){ 
                 for (var key in this.listEmployees) {
                     listCheckbox.push(this.listEmployees[key].EmployeeID);
+                    this.isActiveRow[key] = true;
+                }
+            }
+            if(!this.isCheckAll[this.pageNumber]){ 
+                for (var d in this.listEmployees) {
+                    this.isActiveRow[d] = false;
                 }
             }
             this.listCheckbox = listCheckbox;
-            console.log("listCheckbox",this.listCheckbox);
             this.$emit("listIDDelete",this.listCheckbox)
         },
         
-        updateCheckall(){
-            console.log(this.listCheckbox);
-            console.log("a",this.listEmployees.EmployeeID);
+        //Xử lý sự kiện check từng dòng
+        updateCheckall(index){
+            
+            this.isActiveRow[index] = event.target.checked;
             if(this.listCheckbox.length == this.listEmployees.length){
                 this.isCheckAll[this.pageNumber] = true;
             }else{
                 this.isCheckAll[this.pageNumber] = false;
             }
-            console.log("listCheckbox2",this.listCheckbox);
             this.$emit("listIDDelete",this.listCheckbox)
         },
+
         /**
          * Lấy ID của nhân viên cần sửa
          * @param employeeID ID của nhân viên
          * Author: LHDO(19/11/2022)
          */
         onClickEditEmployee(employeeID) {
-            console.log("employeeID:", employeeID);
             this.$emit("onClickEditEmployee", employeeID);
         },
 
@@ -152,7 +131,7 @@ export default {
          * Author: LHDO(19/11/2022)
          */
         handelClickOpenContextMenu(){
-            this.showContextMenu = true;
+            this.showContextMenu = !this.showContextMenu;
             this.$emit("showContextMenu", this.showContextMenu);
         },
 
@@ -163,7 +142,7 @@ export default {
          * Author: LHDO(19/11/2022)
          */
         getPositionContext(e,empId,empCode,idx){
-            this.showContextMenu = !this.showContextMenu;
+            this.showContextMenu = true;
             this.$emit("employeeCode", empCode);
             this.$emit("employeeId", empId);
             this.$emit("showContextMenu", this.showContextMenu);
@@ -194,13 +173,6 @@ export default {
                     this.topAc = e.target.getBoundingClientRect().y + 10
                     this.$emit("topContext",this.topAc);
                     this.$emit("leftContext",this.leftAc);
-            }
-            
-            if(this.showContextMenu){
-                this.showContextMenu2[idx] = true
-            }
-            if(!this.showContextMenu){
-                this.showContextMenu2[idx] = false
             }
 
         },
